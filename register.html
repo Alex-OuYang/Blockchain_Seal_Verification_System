@@ -37,7 +37,7 @@ and open the template in the editor.
                         document.getElementById("showAcc").textContent = accountObject.address;
                         document.getElementById("privateKey").textContent = accountObject.private;
                         document.getElementById("publicKey").textContent = accountObject.public;
-                        document.getElementById("reg_btn").disabled=false;
+                        document.getElementById("reg_btn").disabled = false;
                         console.log(accountObject);
                     } else {
                         CreateAccount();
@@ -53,13 +53,14 @@ and open the template in the editor.
                 var privateKey = document.getElementById("privateKey").textContent;
                 var publicKey = document.getElementById("publicKey").textContent;
                 var datetime = new Date();
+                var datetimestring = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + datetime.getDate() + " " + datetime.getHours() + ":" + datetime.getMinutes() + ":" + datetime.getSeconds();
                 if (account.length > 0) {
                     var filestring = {
                         identify: identify,
                         account: account,
                         privateKey: privateKey,
                         publicKey: publicKey,
-                        datetime: datetime
+                        datetime: datetimestring
                     }
                     accountfile.push(filestring);
                     var downloadstring = JSON.stringify(accountfile);
@@ -130,7 +131,11 @@ and open the template in the editor.
                 </div>
             </div>
             <footer class="w3-container w3-light-grey">
-                <p class="w3-right"><span class="w3-tag w3-light-grey">New</span></p>
+                <p class="w3-right">
+                    <span class="w3-tag w3-light-grey">
+                        <a class="w3-btn w3-padding-small" href="index.html">上一頁</a>
+                    </span>
+                </p>
             </footer>
         </div>
     </body>
