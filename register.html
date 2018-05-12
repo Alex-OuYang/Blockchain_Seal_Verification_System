@@ -18,6 +18,12 @@ and open the template in the editor.
             var web3 = new Web3();
             web3.setProvider(new web3.providers.HttpProvider("http://140.124.93.79:8545"));
             //連接區塊鏈
+
+            var accountfile = [];
+            window.onload = function () {
+                accountfile.length = 0;
+            }
+
             function CreateAccount() {
                 var identify = document.getElementById("identify").value;
                 var pwd = document.getElementById("password").value;
@@ -29,6 +35,9 @@ and open the template in the editor.
                     var isAddress = web3.isAddress(accountObject.address);//check account
                     if (isAddress == true) {
                         document.getElementById("showAcc").textContent = accountObject.address;
+                        document.getElementById("privateKey").textContent = accountObject.private;
+                        document.getElementById("publicKey").textContent = accountObject.public;
+                        document.getElementById("reg_btn").disabled=false;
                         console.log(accountObject);
                     } else {
                         CreateAccount();
@@ -36,6 +45,39 @@ and open the template in the editor.
                 } else {
                     alert("密碼長度需大於8個字");
                 }
+            }
+            function RegisterAccount() {
+                accountfile.length = 0;
+                var identify = document.getElementById("identify").value;
+                var account = document.getElementById("showAcc").textContent;
+                var privateKey = document.getElementById("privateKey").textContent;
+                var publicKey = document.getElementById("publicKey").textContent;
+                var datetime = new Date();
+                if (account.length > 0) {
+                    var filestring = {
+                        identify: identify,
+                        account: account,
+                        privateKey: privateKey,
+                        publicKey: publicKey,
+                        datetime: datetime
+                    }
+                    accountfile.push(filestring);
+                    var downloadstring = JSON.stringify(accountfile);
+                    DownloadFile(downloadstring, account);
+                } else {
+                    alert("尚未產生帳號");
+                }
+            }
+            function DownloadFile(downloadstring, account) {
+                var blob = new Blob([downloadstring], {
+                    type: "application/octect-stream"
+                });
+                var blobUrl = URL.createObjectURL(blob);
+                var fileName = account + ".txt";
+                var alink = document.getElementById("accfile");
+                alink.href = blobUrl;
+                alink.download = fileName;
+                alink.textContent = fileName;
             }
         </script>
     </head>
@@ -71,10 +113,12 @@ and open the template in the editor.
                     </div>
                     <div class="w3-col l10 m10 s10">
                         <label class="w3-cell-middle w3-right" id="showAcc"></label>
+                        <input type="hidden" id="privateKey">
+                        <input type="hidden" id="publicKey">
                     </div>
                 </div>
                 <div class="w3-col l12 m12 s12 w3-margin-top">
-                    <button class="w3-button w3-blue w3-block" onclick="RegisterAccount()">Register</button>
+                    <button class="w3-button w3-blue w3-block" id="reg_btn" onclick="RegisterAccount()" disabled>Register</button>
                 </div>
                 <div class="w3-col l12 m12 s12 w3-margin-top">
                     <div class="w3-col l2 m2 s2">
