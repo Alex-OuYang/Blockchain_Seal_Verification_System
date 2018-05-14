@@ -12,6 +12,7 @@ and open the template in the editor.
         <link href="css/w3.css" rel="stylesheet" type="text/css"/>
         <script src="js/web3.js" type="text/javascript"></script>
         <script src="js/ethereumjs-accounts.js" type="text/javascript"></script>
+        <script src="js/sessionjs.js" type="text/javascript"></script>
         <script>
             //連接區塊鏈
             var Web3 = require('web3');
@@ -36,7 +37,13 @@ and open the template in the editor.
                     var account = key.account;
                     var passphrase = key.identify.toString() + "" + pwd;
                     var accountObject = accounts.get(account, passphrase);
+                    var sessionObj = {
+                        id: key.identify,
+                        account: key.account
+                    }
+                    console.log(sessionObj);
                     if (accountObject.locked == false) {
+                        Session.set("name", sessionObj);
                         alert("登入成功");
                         location.href = key.identify + "_index.html";
                     } else {
