@@ -12,9 +12,22 @@ and open the template in the editor.
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="js/sessionjs.js" type="text/javascript"></script>
+    <script src="js/web3.js" type="text/javascript"></script>
     <script src="js/buffer.js" type="text/javascript"></script>
     <script src="js/ipfs.js" type="text/javascript"></script>
     <script>
+        //連接區塊鏈
+        var Web3 = require('web3');
+        var web3 = new Web3();
+        web3.setProvider(new web3.providers.HttpProvider("http://140.124.93.79:8545"));
+        //連接區塊鏈
+
+        //合約區
+        var contractABI = [{"constant": false, "inputs": [{"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "setIpfs", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        var contractByteCode = '0x6060604052341561000f57600080fd5b6104118061001e6000396000f300606060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633524750d14610046575b600080fd5b341561005157600080fd5b610252600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610254565b005b876000908051906020019061026a929190610340565b508660019080519060200190610281929190610340565b508560029080519060200190610298929190610340565b5084600390805190602001906102af929190610340565b5083600490805190602001906102c6929190610340565b5082600590805190602001906102dd929190610340565b5081600690805190602001906102f4929190610340565b5080600760006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050505050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061038157805160ff19168380011785556103af565b828001600101855582156103af579182015b828111156103ae578251825591602001919060010190610393565b5b5090506103bc91906103c0565b5090565b6103e291905b808211156103de5760008160009055506001016103c6565b5090565b905600a165627a7a72305820bfbe7a2c2bd86c09e92cc4e388496e47ce973b4db7e61a2f0b33afe9444038d00029';
+        var contractAddress = "";
+        //合約區
+
 
         //IPFS 初始
         //const ipfs = window.IpfsApi('localhost', '5001');//使用 IPFS daemon 
@@ -23,6 +36,7 @@ and open the template in the editor.
 
         var mySidebar;
         var overlayBg;
+        var useraccount;
         window.onload = function () {
             mySidebar = document.getElementById("mySidebar");
             overlayBg = document.getElementById("myOverlay");
@@ -31,6 +45,7 @@ and open the template in the editor.
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
                 document.getElementById("input_ethacc").value = sessionObj.account;
+                useraccount = sessionObj.account;
             } else {
                 location.href = "index.html";
             }
@@ -94,8 +109,38 @@ and open the template in the editor.
                 ipfs.pin.add(hash, function (err) {});//自動同步到ipfs鏈上
             }
         }
+        function GetDatetime() {
+            var date = new Date();
+            var datetimestring = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            return datetimestring;
+        }
+        function DeployContract() {
+            console.log(useraccount);
+            web3.personal.unlockAccount(useraccount, "Securities11111111");
+            var saveipfsContract = web3.eth.contract(contractABI);
+            var saveipfs = saveipfsContract.new(
+                    {
+                        from: web3.eth.accounts[0],
+                        //from: useraccount,
+                        data: contractByteCode,
+                        gas: '4700000'
+                    }, function (e, contract) {
+                console.log(e, contract);
+                if (typeof contract.address !== 'undefined') {
+                    console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+                }
+            })
+        }
         function SaveFileInFo() {
-            
+            var opFileName = document.getElementById("OpenFile_FileName").value;
+            var opFileFormat = document.getElementById("OpenFile_FileFormat").value;
+            var opIpfs = document.getElementById("OpenFile_IPFSHash").value;
+            var SealFileName = document.getElementById("SealImage_FileName").value;
+            var SealFileFormat = document.getElementById("SealImage_FileFormat").value;
+            var sealIpfs = document.getElementById("SealImage_IPFSHash").value;
+            var datetimestr = GetDatetime();
+            var ethacc = document.getElementById("input_ethacc").value;
+            console.log(opFileName + "," + opFileFormat + "," + opIpfs + "," + SealFileName + "," + SealFileFormat + "," + sealIpfs + "," + datetimestr + "," + ethacc);
         }
     </script>
     <style>
@@ -216,7 +261,7 @@ and open the template in the editor.
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
-                        <button class="w3-btn w3-blue w3-block" onclick="SaveFileInFo()">儲存</button>
+                        <button class="w3-btn w3-blue w3-block" onclick="DeployContract()">儲存</button>
                     </div>
                     <footer class="w3-container"></footer>
                 </div>
