@@ -94,6 +94,9 @@ and open the template in the editor.
                 ipfs.pin.add(hash, function (err) {});//自動同步到ipfs鏈上
             }
         }
+        function SaveFileInFo() {
+            
+        }
     </script>
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
@@ -120,7 +123,7 @@ and open the template in the editor.
             <hr>
             <div class="w3-bar-block">
                 <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
-                <a href="Securities_index.html" class="w3-bar-item w3-button w3-padding"><i class="fa fa-upload fa-fw"></i>  Upload Img</a>
+                <a href="Securities_index.html" class="w3-bar-item w3-button w3-padding"><i class="fa fa-upload fa-fw"></i>  Upload</a>
                 <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-paper-plane fa-fw"></i>  Send & Get</a>
                 <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Views</a>
             </div>
@@ -135,7 +138,7 @@ and open the template in the editor.
             <div class="w3-container">
                 <div class="w3-card-4 w3-margin">
                     <header class="w3-container w3-blue">
-                        <h5><b><i class="fa fa-file"></i> Upload Img</b></h5>
+                        <h5><b><i class="fa fa-upload"></i> Upload</b></h5>
                     </header>
 
                     <div class="w3-container w3-margin">
@@ -213,7 +216,7 @@ and open the template in the editor.
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
-                        <button class="w3-btn w3-blue w3-block">儲存</button>
+                        <button class="w3-btn w3-blue w3-block" onclick="SaveFileInFo()">儲存</button>
                     </div>
                     <footer class="w3-container"></footer>
                 </div>
