@@ -21,7 +21,7 @@ and open the template in the editor.
         //連接區塊鏈
         var Web3 = require('web3');
         var web3 = new Web3();
-        //web3.setProvider(new web3.providers.HttpProvider("http://140.124.93.79:8545"));
+        web3.setProvider(new web3.providers.HttpProvider("http://140.124.93.79:8545"));
         //連接區塊鏈
 
         //合約區
@@ -48,15 +48,6 @@ and open the template in the editor.
                 document.getElementById("accshow").textContent = sessionObj.account;
                 document.getElementById("input_ethacc").value = sessionObj.account;
                 useraccount = sessionObj.account;
-                var provider = new HookedWeb3Provider({
-                    host: "http://140.124.93.79:8545",
-                    transaction_signer: {
-                        hasAddress: useraccount.toString(),
-                        signTransaction: useraccount
-                    }
-                });
-                web3.setProvider(provider);
-                //web3.eth.defaultAccount = useraccount;
             } else {
                 location.href = "index.html";
             }
@@ -132,15 +123,15 @@ and open the template in the editor.
             var saveipfsContract = web3.eth.contract(contractABI);
             var saveipfs = saveipfsContract.new(
                     {
-                        //from: web3.eth.accounts[0],
-                        from: useraccount,
-                        //from: web3.eth.defaultAccount,
+                        from: web3.eth.accounts[0],
                         data: contractByteCode,
                         gas: '4700000'
                     }, function (e, contract) {
                 console.log(e, contract);
                 if (typeof contract.address !== 'undefined') {
+                    contractAddress = contract.address;
                     console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+                    SaveFileInFo();
                 }
             })
         }
@@ -154,6 +145,16 @@ and open the template in the editor.
             var datetimestr = GetDatetime();
             var ethacc = document.getElementById("input_ethacc").value;
             console.log(opFileName + "," + opFileFormat + "," + opIpfs + "," + SealFileName + "," + SealFileFormat + "," + sealIpfs + "," + datetimestr + "," + ethacc);
+            if (contractABI !== "") {
+                web3.eth.defaultAccount = web3.eth.accounts[0];
+                var myContract = web3.eth.contract(contractABI);
+                var myContractInstance = myContract.at(contractAddress);
+                var result = myContractInstance.setIpfs(opFileName, opFileFormat, opIpfs, SealFileName, SealFileFormat, sealIpfs, datetimestr, ethacc, {
+                    from: web3.eth.accounts[0],
+                    gas: 300000000
+                });
+                console.log(result);
+            }
         }
     </script>
     <style>
