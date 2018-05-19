@@ -15,13 +15,17 @@ and open the template in the editor.
     <script src="js/web3.js" type="text/javascript"></script>
     <script src="js/buffer.js" type="text/javascript"></script>
     <script src="js/ipfs.js" type="text/javascript"></script>
-    <script src="js/ethereumjs-accounts.js" type="text/javascript"></script>
     <script src="js/hooked-web3-provider.js" type="text/javascript"></script>
     <script>
         //連接區塊鏈
         var Web3 = require('web3');
         var web3 = new Web3();
         web3.setProvider(new web3.providers.HttpProvider("http://140.124.93.79:8545"));
+        var isConnected = web3.isConnected();
+        //console.log(isConnected);
+        if (!isConnected) {
+            alert("請先連接區塊鏈！！");
+        }
         //連接區塊鏈
 
         //合約區
