@@ -122,8 +122,6 @@ and open the template in the editor.
         }
         function DeployContract() {
             console.log(useraccount);
-            //web3.personal.unlockAccount(useraccount, "Securities11111111");
-            //accounts.get(useraccount, "Securities11111111");
             var saveipfsContract = web3.eth.contract(contractABI);
             var saveipfs = saveipfsContract.new(
                     {
@@ -160,6 +158,10 @@ and open the template in the editor.
                 console.log(result);
             }
         }
+        function Logout() {
+            Session.clear();
+            location.href = "index.html";
+        }
     </script>
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
@@ -169,7 +171,7 @@ and open the template in the editor.
         <!-- Top container -->
         <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
             <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
-            <span class="w3-bar-item w3-right"><i class="fa fa-user-circle"></i></span>
+            <button class="w3-bar-item w3-black w3-right" onclick="Logout()"><span class="w3-bar-item w3-right"><i class="fa fa-sign-out"></i></span></button>
         </div>
 
         <!-- Sidebar/menu -->
