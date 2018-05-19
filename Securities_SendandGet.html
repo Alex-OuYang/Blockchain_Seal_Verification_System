@@ -38,14 +38,14 @@ and open the template in the editor.
             //register_Account contractABI
 
             //upload_file_address_contractABI
-            //var upload_file_address_contractABI = [{"constant": false, "inputs": [{"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "setIpfs", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+            var upload_file_address_contractABI = [{"constant": false, "inputs": [{"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "setIpfs", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
             //upload_file_address_contractABI
             //合約區
 
             var mySidebar;
             var overlayBg;
             var useraccount;
-            var decodedDataArray = [];
+
             window.onload = function () {
                 mySidebar = document.getElementById("mySidebar");
                 overlayBg = document.getElementById("myOverlay");
@@ -58,6 +58,7 @@ and open the template in the editor.
                     location.href = "index.html";
                 }
                 GetBankAccountList();
+                GetTransactionList();
             };
             function w3_open() {
                 if (mySidebar.style.display === 'block') {
@@ -92,11 +93,46 @@ and open the template in the editor.
                     }
                 }
             }
+            function GetUploadInfo(e) {
+                var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+                for (var i = 0; i < getTransactiondeCodeData.length; i++) {
+                    if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === e.value) {
+                        console.log(getTransactiondeCodeData[i]);
+                        document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[6].value;
+                        document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[0].value + "." + getTransactiondeCodeData[i].params[1].value;
+                        document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[2].value;
+                        document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[3].value + "." + getTransactiondeCodeData[i].params[4].value;
+                        document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[5].value;
+                    }
+                }
+            }
             function GetTransactionList() {
                 var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+                var select = document.getElementById("upload_file_address");
+                for (var i = 0; i < getTransactiondeCodeData.length; i++) {
+                    if (typeof getTransactiondeCodeData[i] !== "undefined") {
+                        //console.log(getTransactiondeCodeData[i]);
+                        var transcationhash = getTransactiondeCodeData[i].transcationhash;
+                        var option = document.createElement("option");
+                        option.setAttribute("value", transcationhash);
+                        var optionText = document.createTextNode(transcationhash);
+                        option.append(optionText);
+                        select.append(option);
+                        /*
+                         document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[6].value;
+                         document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[0].value + "." + getTransactiondeCodeData[i].params[1].value;
+                         document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[2].value;
+                         document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[3].value + "." + getTransactiondeCodeData[i].params[4].value;
+                         document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[5].value;
+                         */
+                    }
+                }
+                var firstSetListValue = select.getElementsByTagName("option")[0];
+                GetUploadInfo(firstSetListValue);
             }
+
             function GetTranscation(abi) {
-                decodedDataArray.length = 0;
+                var decodedDataArray = [];
                 var blockNumber = web3.eth.blockNumber;
                 for (var i = 1; i <= blockNumber; i++) {
                     var blockinfo = web3.eth.getBlock(i);
@@ -107,12 +143,16 @@ and open the template in the editor.
                             abiDecoder.addABI(abi);
                             var transaction_input = transaction.input;
                             var decodedData = abiDecoder.decodeMethod(transaction_input);
+                            if (typeof decodedData != "undefined") {
+                                decodedData.transcationhash = transaction.hash;
+                            }
                             decodedDataArray.push(decodedData);
                             //console.log(decodedData);
                         }
                     }
                 }
                 //console.log(decodedDataArray);
+                abiDecoder.removeABI(abi);//清除abi cache
                 return decodedDataArray;
             }
         </script>
@@ -168,24 +208,24 @@ and open the template in the editor.
                             <label><b>Upload Address：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="upload_address">
-                        </div>
-                    </div>
-                    <div class="w3-container w3-margin">
-                        <div class="w3-col l2 m2 s2">
-                            <label><b>上傳時間：</b></label>
-                        </div>
-                        <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="upload_datetime">
+                            <select class="w3-col l12 m12 s12 w3-padding-small" id="upload_file_address" onchange="GetUploadInfo(this)"></select>
                         </div>
                     </div>
                     <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom"><b>顯示上傳訊息</b></div>
                     <div class="w3-container w3-margin">
                         <div class="w3-col l2 m2 s2">
+                            <label><b>上傳時間：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="upload_datetime" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
                             <label><b>開戶文件</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="opfile_ipfs_hash">
+                            <input class="w3-input w3-border" type="text" id="opfile_name" readonly>
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
@@ -193,7 +233,7 @@ and open the template in the editor.
                             <label><b>開戶文件<br>IPFS Hash：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="opfile_ipfs_hash">
+                            <input class="w3-input w3-border" type="text" id="opfile_ipfs_hash" readonly>
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
@@ -201,7 +241,7 @@ and open the template in the editor.
                             <label><b>印鑑圖檔</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="seal_image">
+                            <input class="w3-input w3-border" type="text" id="sealfile_name" readonly>
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
@@ -209,7 +249,7 @@ and open the template in the editor.
                             <label><b>開戶文件<br>IPFS Hash：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="seal_image">
+                            <input class="w3-input w3-border" type="text" id="seal_image" readonly>
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
