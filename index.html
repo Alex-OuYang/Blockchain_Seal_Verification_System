@@ -41,47 +41,52 @@ and open the template in the editor.
                 reader.readAsText(files);
             }
             function LoginCheck() {
-                if (key != null) {
+                var pwd = document.getElementById("password").value;
+                var checkacc = [];
+                var checkpwd = [];
+                if (key != null && pwd.length != "") {
                     var transcationHash = key.transcationhash;
-                    var blockNumber = web3.eth.blockNumber;
-                    for (var i = 1; i <= blockNumber; i++) {
-                        var blockinfo = web3.eth.getBlock(i);
-                        var blockTransactionLength = blockinfo.transactions.length;
-                        if (blockTransactionLength > 0) {
-                            var transactionArrayNumber = blockinfo.transactions.indexOf(transcationHash);
-                            if (transactionArrayNumber != -1) {
-                                var transaction = web3.eth.getTransaction(blockinfo.transactions[transactionArrayNumber]);
-                                abiDecoder.addABI(contractABI);
-                                var transaction_input = transaction.input;
-                                var decodedData = abiDecoder.decodeMethod(transaction_input);
-                                //console.log(decodedData);
-                                if (typeof (decodedData) !== 'undefined') {
-                                    var pwd = document.getElementById("password").value;
-                                    if (pwd != "") {
-                                        var storagepwd = decodedData.params[4].value;
-                                        if (storagepwd == pwd) {
-                                            var sessionObj = {
-                                                id: key.identify,
-                                                account: key.account
-                                            }
-                                            Session.set("name", sessionObj);
-                                            alert("登入成功");
-                                            location.href = key.identify + "_index.html";
-                                        } else {
-                                            alert("密碼錯誤！！");
-                                        }
-                                    } else {
-                                        alert("密碼請勿空白！！");
-                                    }
-                                } else {
-                                    alert("查無帳號！！");
-                                }
-                            }
+                    var getAccdeCodeData = GetTranscation(contractABI);
+                    for (var i = 0; i < getAccdeCodeData.length; i++) {
+                        if (typeof getAccdeCodeData[i] !== "undefined") {
+                            checkacc.push(getAccdeCodeData[i].params[1].value);
+                            checkpwd.push(getAccdeCodeData[i].params[4].value);
                         }
                     }
+                    if (checkpwd[checkacc.indexOf(key.account)] === pwd) {
+                        var sessionObj = {
+                            id: key.identify,
+                            account: key.account
+                        }
+                        Session.set("name", sessionObj);
+                        alert("登入成功");
+                        location.href = key.identify + "_index.html";
+                    } else {
+                        alert("登入失敗");
+                    }
                 } else {
-                    alert("請輸入金鑰！！");
+                    alert("欄位請勿空白！！");
                 }
+            }
+            function GetTranscation(abi) {
+                var blockNumber = web3.eth.blockNumber;
+                var decodedDataArray = [];
+                for (var i = 1; i <= blockNumber; i++) {
+                    var blockinfo = web3.eth.getBlock(i);
+                    var blockTransactionLength = blockinfo.transactions.length;
+                    if (blockTransactionLength > 0) {
+                        for (var j = 0; j < blockTransactionLength; j++) {
+                            var transaction = web3.eth.getTransaction(blockinfo.transactions[j]);
+                            abiDecoder.addABI(abi);
+                            var transaction_input = transaction.input;
+                            var decodedData = abiDecoder.decodeMethod(transaction_input);
+                            decodedDataArray.push(decodedData);
+                            //console.log(decodedData);
+                        }
+                    }
+                }
+                //console.log(decodedDataArray);
+                return decodedDataArray;
             }
         </script>
     </head>
