@@ -19,7 +19,6 @@ and open the template in the editor.
             mySidebar = document.getElementById("mySidebar");
             overlayBg = document.getElementById("myOverlay");
             var sessionObj = Session.get("name");
-            console.log(sessionObj);
             if (sessionObj != null) {
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
@@ -69,10 +68,11 @@ and open the template in the editor.
             </div>
             <hr>
             <div class="w3-bar-block">
-                <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>
+                <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu"><i class="fa fa-remove fa-fw"></i>  Close Menu</a>                
+                <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-image fa-fw"></i>  Seal Manage</a>
+                <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-comment fa-fw"></i>  Message</a>
                 <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-search-plus fa-fw"></i>  Compare Seal</a>
-                <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-paper-plane fa-fw"></i>  Send & Get</a>
-                <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Views</a>
+                <a href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-eye fa-fw"></i>  Views</a>
             </div>
         </nav>
 
