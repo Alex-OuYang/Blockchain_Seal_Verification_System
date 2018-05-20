@@ -148,7 +148,7 @@ and open the template in the editor.
             var sealIpfs = document.getElementById("SealImage_IPFSHash").value;
             var datetimestr = GetDatetime();
             var ethacc = document.getElementById("input_ethacc").value;
-            console.log(opFileName + "," + opFileFormat + "," + opIpfs + "," + SealFileName + "," + SealFileFormat + "," + sealIpfs + "," + datetimestr + "," + ethacc);
+            //console.log(opFileName + "," + opFileFormat + "," + opIpfs + "," + SealFileName + "," + SealFileFormat + "," + sealIpfs + "," + datetimestr + "," + ethacc);
             if (contractABI !== "") {
                 web3.eth.defaultAccount = web3.eth.accounts[0];
                 var myContract = web3.eth.contract(contractABI);
@@ -158,6 +158,8 @@ and open the template in the editor.
                     gas: 300000000
                 });
                 console.log(result);
+                alert("儲存成功！！");
+                location.reload("Securities_index.html");
             }
         }
         function Logout() {
