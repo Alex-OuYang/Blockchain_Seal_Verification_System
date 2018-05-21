@@ -5,9 +5,9 @@ contract SendTransactionToBank{
     address private toaddress;
     string  private message;
 
-    function sendTransactionToBank(address thisaccount,address fromaddr,string tranmsg)public{
+    function sendTransactionToBank(address thisaccount,address toaddr,string tranmsg)public{
         fromaddress=thisaccount;
-        toaddress=fromaddr;
+        toaddress=toaddr;
         message=tranmsg;
     }
 }

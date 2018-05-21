@@ -12,9 +12,36 @@ and open the template in the editor.
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="js/sessionjs.js" type="text/javascript"></script>
+    <script src="js/web3.js" type="text/javascript"></script>
+    <script src="js/abi-decoder.js" type="text/javascript"></script>
     <script>
+        //連接區塊鏈
+        //var connectIP = "140.124.93.79";
+        var connectIP = "localhost";
+        var Web3 = require('web3');
+        var web3 = new Web3();
+        web3.setProvider(new web3.providers.HttpProvider("http://" + connectIP + ":8545"));
+        var isConnected = web3.isConnected();
+        //console.log(isConnected);
+        if (!isConnected) {
+            alert("請先連接區塊鏈！！");
+        }
+        //連接區塊鏈
+
+        //合約區
+        //Send_Transaction_To_Bank_contractABI
+        var Send_Transaction_To_Bank_contractABI = [{"constant": false, "inputs": [{"name": "thisaccount", "type": "address"}, {"name": "toaddr", "type": "address"}, {"name": "tranmsg", "type": "string"}], "name": "sendTransactionToBank", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //Send_Transaction_To_Bank_contractABI
+
+        //upload_file_address_contractABI
+        var upload_file_address_contractABI = [{"constant": false, "inputs": [{"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "setIpfs", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //upload_file_address_contractABI
+
+        //合約區
+
         var mySidebar;
         var overlayBg;
+        var useraccount;
         window.onload = function () {
             mySidebar = document.getElementById("mySidebar");
             overlayBg = document.getElementById("myOverlay");
@@ -22,6 +49,8 @@ and open the template in the editor.
             if (sessionObj != null) {
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
+                useraccount = sessionObj.account;
+                GetTransactionDataList();
             } else {
                 location.href = "index.html";
             }
@@ -42,6 +71,91 @@ and open the template in the editor.
         function Logout() {
             Session.clear();
             location.href = "index.html";
+        }
+        function GetTransactionDataList() {
+            var TransactionDataListArray = [];
+            var gettrandeCodeData = GetTranscation(Send_Transaction_To_Bank_contractABI);
+            var select = document.getElementById("from_securities_select");
+            for (var i = 0; i < gettrandeCodeData.length; i++) {
+                if (typeof gettrandeCodeData[i] !== "undefined") {
+                    var toaddr = gettrandeCodeData[i].params[1].value;
+                    if (toaddr === useraccount) {
+                        TransactionDataListArray.push(gettrandeCodeData[i].params[0].value);
+                    }
+                }
+            }
+            var distinctTransactionDataListArray = TransactionDataListArray.filter(function (element, index, arr) {
+                return arr.indexOf(element) === index;
+            });
+            for (var j = 0; j < distinctTransactionDataListArray.length; j++) {
+                var option = document.createElement("option");
+                option.setAttribute("value", distinctTransactionDataListArray[j]);
+                var optionText = document.createTextNode(distinctTransactionDataListArray[j]);
+                option.append(optionText);
+                select.append(option);
+            }
+            GetUploadAddressInfo(document.getElementById("from_securities_select"));
+        }
+        function GetTranscation(abi) {
+            var decodedDataArray = [];
+            var blockNumber = web3.eth.blockNumber;
+            for (var i = 1; i <= blockNumber; i++) {
+                var blockinfo = web3.eth.getBlock(i);
+                var blockTransactionLength = blockinfo.transactions.length;
+                if (blockTransactionLength > 0) {
+                    for (var j = 0; j < blockTransactionLength; j++) {
+                        var transaction = web3.eth.getTransaction(blockinfo.transactions[j]);
+                        abiDecoder.addABI(abi);
+                        var transaction_input = transaction.input;
+                        var decodedData = abiDecoder.decodeMethod(transaction_input);
+                        if (typeof decodedData != "undefined") {
+                            decodedData.transcationhash = transaction.hash;
+                        }
+                        decodedDataArray.push(decodedData);
+                        //console.log(decodedData);
+                    }
+                }
+            }
+            //console.log(decodedDataArray);
+            abiDecoder.removeABI(abi);//清除abi cache
+            return decodedDataArray;
+        }
+        function GetUploadAddressInfo(e) {
+            var gettrandeCodeData2 = GetTranscation(Send_Transaction_To_Bank_contractABI);
+            var select = document.getElementById("upload_file_address");
+            var selectlength = select.options.length;
+            if (selectlength !== 0) {
+                while (select.firstChild) {
+                    select.removeChild(select.firstChild);
+                }
+            }
+            for (var i = 0; i < gettrandeCodeData2.length; i++) {
+                if (typeof gettrandeCodeData2[i] !== "undefined") {
+                    var thisaddr = gettrandeCodeData2[i].params[0].value;
+                    if (thisaddr === e.value) {
+                        console.log(gettrandeCodeData2[i]);
+                        var option = document.createElement("option");
+                        option.setAttribute("value", gettrandeCodeData2[i].params[2].value);
+                        var optionText = document.createTextNode(gettrandeCodeData2[i].params[2].value);
+                        option.append(optionText);
+                        select.append(option);
+                    }
+                }
+            }
+            GetUploadInfo(document.getElementById("upload_file_address"));
+        }
+        function GetUploadInfo(e) {
+            var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+            for (var i = 0; i < getTransactiondeCodeData.length; i++) {
+                if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === e.value) {
+                    console.log(getTransactiondeCodeData[i]);
+                    document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[6].value;
+                    document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[0].value + "." + getTransactiondeCodeData[i].params[1].value;
+                    document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[2].value;
+                    document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[3].value + "." + getTransactiondeCodeData[i].params[4].value;
+                    document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[5].value;
+                }
+            }
         }
     </script>
     <style>
@@ -80,7 +194,76 @@ and open the template in the editor.
         <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
         <!-- !PAGE CONTENT! -->
-        <div class="w3-main" style="margin-left:425px;margin-top:43px;">
+        <div class="w3-main" style="margin-left:425px;margin-top:60px;">
+            <div class="w3-container">
+                <div class="w3-card-4 w3-margin">
+                    <header class="w3-container w3-blue">
+                        <h5><b><i class="fa fa-comment"></i>&nbsp;Get&nbsp;Message</b></h5>
+                    </header>
+
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>From Securities：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <select class="w3-col l12 m12 s12 w3-padding-small" id="from_securities_select" onchange="GetUploadAddressInfo(this)"></select>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>Upload Address：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <select class="w3-col l12 m12 s12 w3-padding-small" id="upload_file_address" onchange="GetUploadInfo(this)"></select>
+                        </div>
+                    </div>
+                    <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom"><b>顯示上傳訊息</b></div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>上傳時間：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="upload_datetime" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>開戶文件</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="opfile_name" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>開戶文件<br>IPFS Hash：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="opfile_ipfs_hash" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>印鑑圖檔</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="sealfile_name" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>開戶文件<br>IPFS Hash：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="seal_image" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <button class="w3-btn w3-blue w3-block" onclick="">比對印鑑</button>
+                    </div>
+                    <footer class="w3-container"></footer>
+                </div>
+            </div>
         </div>
     </body>
 </html>
