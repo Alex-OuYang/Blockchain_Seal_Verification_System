@@ -11,8 +11,22 @@ and open the template in the editor.
     <link rel="stylesheet" href="css/w3.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/datepicker.css">
     <script src="js/sessionjs.js" type="text/javascript"></script>
+    <script src="js/web3.js" type="text/javascript"></script>
+    <script src="js/buffer.js" type="text/javascript"></script>
+    <script src="js/ipfs.js" type="text/javascript"></script>
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/datepicker.js" type="text/javascript"></script>
+    <script src="js/addressSelectList.js" type="text/javascript"></script>
     <script>
+
+        //IPFS 初始
+        //const ipfs = window.IpfsApi('localhost', '5001');//使用 IPFS daemon 
+        var ipfs = window.IpfsApi({host: 'ipfs.infura.io', port: '5001', protocol: 'https'});//使用 public IPFS
+        //IPFS 初始
+
+
         var mySidebar;
         var overlayBg;
         window.onload = function () {
@@ -22,6 +36,11 @@ and open the template in the editor.
             if (sessionObj != null) {
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
+                $('[data-toggle="datepicker"]').datepicker({
+                    format: 'yyyy-mm-dd',
+                    endDate: new Date()
+                });
+                AddressSeleclList.Initialize('input_usercity', 'input_userarea');
             } else {
                 location.href = "index.html";
             }
@@ -43,6 +62,112 @@ and open the template in the editor.
             Session.clear();
             location.href = "index.html";
         }
+        function UploadSealFile(e) {
+            if (e !== "") {
+                var inputname = e.name;
+                var ipfshash_str = inputname + "_IPFSHash";
+                var filename_str = inputname + "_FileName";
+                var fileformat_str = inputname + "_FileFormat";
+                var file = e.files[0];
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var tmpfilename = file.name;
+                    var filesplit = tmpfilename.split(".");
+                    var filename = filesplit[0];
+                    var fileformat = filesplit[1];
+                    document.getElementById(filename_str).value = filename;
+                    document.getElementById(fileformat_str).value = fileformat;
+                    const buf = buffer.Buffer(reader.result);//ArrayBuffer to buffer
+                    IPFSAdd(buf, ipfshash_str);
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert("請選擇檔案!!");
+            }
+        }
+        function IPFSAdd(buf, ipfshash_str) {//新增檔案
+            if (buf !== "") {
+                const files = [{
+                        path: '/test', //存放在ipfs上檔案位置
+                        content: buf//檔案
+                    }];
+                var hash;
+                ipfs.files.add(files, function (err, files) {
+                    hash = files[0].hash;
+                    document.getElementById(ipfshash_str).value = hash;
+                });
+                ipfs.pin.add(hash, function (err) {
+                    console.log(err);
+                });//自動同步到ipfs鏈上
+            }
+        }
+        function checkID(idStr) {
+            // 依照字母的編號排列，存入陣列備用。
+            var letters = new Array('A', 'B', 'C', 'D',
+                    'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
+                    'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                    'X', 'Y', 'W', 'Z', 'I', 'O');
+            // 儲存各個乘數
+            var multiply = new Array(1, 9, 8, 7, 6, 5,
+                    4, 3, 2, 1);
+            var nums = new Array(2);
+            var firstChar;
+            var firstNum;
+            var lastNum;
+            var total = 0;
+            // 撰寫「正規表達式」。第一個字為英文字母，
+            // 第二個字為1或2，後面跟著8個數字，不分大小寫。
+            var regExpID = /^[a-z](1|2)\d{8}$/i;
+            // 使用「正規表達式」檢驗格式
+            if (idStr.search(regExpID) == -1) {
+                // 基本格式錯誤
+                alert("請仔細填寫身份證號碼");
+                return false;
+            } else {
+                // 取出第一個字元和最後一個數字。
+                firstChar = idStr.charAt(0).toUpperCase();
+                lastNum = idStr.charAt(9);
+            }
+            // 找出第一個字母對應的數字，並轉換成兩位數數字。
+            for (var i = 0; i < 26; i++) {
+                if (firstChar == letters[i]) {
+                    firstNum = i + 10;
+                    nums[0] = Math.floor(firstNum / 10);
+                    nums[1] = firstNum - (nums[0] * 10);
+                    break;
+                }
+            }
+            // 執行加總計算
+            for (var i = 0; i < multiply.length; i++) {
+                if (i < 2) {
+                    total += nums[i] * multiply[i];
+                } else {
+                    total += parseInt(idStr.charAt(i - 1)) *
+                            multiply[i];
+                }
+            }
+            // 和最後一個數字比對
+            //規則一餘數為零，且檢查碼需為零
+            if (lastNum == 0 && (total % 10) != lastNum) {
+                alert("身份證號碼寫錯了！");
+                return false;
+            }
+            //規則二餘數與檢查碼需相符
+            if (lastNum != 0 && (10 - (total % 10)) != lastNum) {
+                alert("身份證號碼寫錯了！");
+                return false;
+            }
+            return true;
+        }
+        function checkPhone(phoneStr) {
+            var regExpID = /^[09]{2}[0-9]{8}$/;
+            if (regExpID.test(phoneStr)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
     </script>
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
@@ -81,6 +206,101 @@ and open the template in the editor.
 
         <!-- !PAGE CONTENT! -->
         <div class="w3-main" style="margin-left:425px;margin-top:60px;">
+            <div class="w3-container">
+                <div class="w3-card-4 w3-margin">
+                    <header class="w3-container w3-blue">
+                        <h5><b><i class="fa fa-image"></i> Seal Manage</b></h5>
+                    </header>
+                    <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom w3-margin-top"><b>客戶基本資料</b></div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>客戶中文姓名：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="input_username">
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>身份證字號：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="input_userid">
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>出生日期：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="input_userbirthday" data-toggle="datepicker">
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>行動電話：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="input_userbirthday">
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>戶籍地址：</b></label>
+                        </div>
+                        <div class="w3-col l5 m5 s5">
+                            <select class="w3-col l12 m12 s12 w3-padding-small" id="input_usercity"></select>
+                        </div>
+                        <div class="w3-col l5 m5 s5">
+                            <select class="w3-col l12 m12 s12 w3-padding-small" id="input_userarea"></select>
+                        </div>
+                        <div class="w3-col l12 m12 s12 w3-margin-top">
+                            <div class="w3-col l2 m2 s2">&nbsp;</div>
+                            <div class="w3-col l10 m10 s10">
+                                <input class="w3-input w3-border" type="text" id="input_address" placeholder="詳細地址">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom"><b>印鑑圖檔</b></div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>檔案：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" accept="image/*" type="file" name="SealImage" onchange="UploadSealFile(this)">
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>IPFS Hash：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" id="SealImage_IPFSHash" type="text" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>檔案名稱：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" id="SealImage_FileName" type="text" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>檔案格式：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" id="SealImage_FileFormat" type="text" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <button class="w3-btn w3-blue w3-block" onclick="">儲存</button>
+                    </div>
+                    <footer class="w3-container"></footer>
+                </div>
+            </div>
         </div>
     </body>
 </html>
