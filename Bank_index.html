@@ -19,12 +19,32 @@ and open the template in the editor.
     <script src="js/jquery.js" type="text/javascript"></script>
     <script src="js/datepicker.js" type="text/javascript"></script>
     <script src="js/addressSelectList.js" type="text/javascript"></script>
+    <script src="js/check.js" type="text/javascript"></script>
     <script>
+        //連接區塊鏈
+        //var connectIP = "140.124.93.79";
+        var connectIP = "localhost";
+        var Web3 = require('web3');
+        var web3 = new Web3();
+        web3.setProvider(new web3.providers.HttpProvider("http://" + connectIP + ":8545"));
+        var isConnected = web3.isConnected();
+        //console.log(isConnected);
+        if (!isConnected) {
+            alert("請先連接區塊鏈！！");
+        }
+        //連接區塊鏈
+
 
         //IPFS 初始
         //const ipfs = window.IpfsApi('localhost', '5001');//使用 IPFS daemon 
         var ipfs = window.IpfsApi({host: 'ipfs.infura.io', port: '5001', protocol: 'https'});//使用 public IPFS
         //IPFS 初始
+
+        //save_User_Info_contractABI
+        var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        var save_User_Info_contractByteCode = '0x608060405234801561001057600080fd5b5061048a806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632b1e805314610046575b600080fd5b34801561005257600080fd5b506102dd600480360381019080803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091929192905050506102df565b005b88600090805190602001906102f59291906103b9565b50876001908051906020019061030c9291906103b9565b5086600290805190602001906103239291906103b9565b50856003908051906020019061033a9291906103b9565b5084600490805190602001906103519291906103b9565b5083600590805190602001906103689291906103b9565b50826006908051906020019061037f9291906103b9565b5081600790805190602001906103969291906103b9565b5080600890805190602001906103ad9291906103b9565b50505050505050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106103fa57805160ff1916838001178555610428565b82800160010185558215610428579182015b8281111561042757825182559160200191906001019061040c565b5b5090506104359190610439565b5090565b61045b91905b8082111561045757600081600090555060010161043f565b5090565b905600a165627a7a7230582060a1a6765672403d732288550ab047eb62b2f1979e7041ef58b80d1581d4c5530029';
+        var save_User_Info_contractAddress = "";
+        //save_User_Info_contractABI
 
 
         var mySidebar;
@@ -101,70 +121,53 @@ and open the template in the editor.
                 });//自動同步到ipfs鏈上
             }
         }
-        function checkID(idStr) {
-            // 依照字母的編號排列，存入陣列備用。
-            var letters = new Array('A', 'B', 'C', 'D',
-                    'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
-                    'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-                    'X', 'Y', 'W', 'Z', 'I', 'O');
-            // 儲存各個乘數
-            var multiply = new Array(1, 9, 8, 7, 6, 5,
-                    4, 3, 2, 1);
-            var nums = new Array(2);
-            var firstChar;
-            var firstNum;
-            var lastNum;
-            var total = 0;
-            // 撰寫「正規表達式」。第一個字為英文字母，
-            // 第二個字為1或2，後面跟著8個數字，不分大小寫。
-            var regExpID = /^[a-z](1|2)\d{8}$/i;
-            // 使用「正規表達式」檢驗格式
-            if (idStr.search(regExpID) == -1) {
-                // 基本格式錯誤
-                alert("請仔細填寫身份證號碼");
-                return false;
-            } else {
-                // 取出第一個字元和最後一個數字。
-                firstChar = idStr.charAt(0).toUpperCase();
-                lastNum = idStr.charAt(9);
-            }
-            // 找出第一個字母對應的數字，並轉換成兩位數數字。
-            for (var i = 0; i < 26; i++) {
-                if (firstChar == letters[i]) {
-                    firstNum = i + 10;
-                    nums[0] = Math.floor(firstNum / 10);
-                    nums[1] = firstNum - (nums[0] * 10);
-                    break;
-                }
-            }
-            // 執行加總計算
-            for (var i = 0; i < multiply.length; i++) {
-                if (i < 2) {
-                    total += nums[i] * multiply[i];
-                } else {
-                    total += parseInt(idStr.charAt(i - 1)) *
-                            multiply[i];
-                }
-            }
-            // 和最後一個數字比對
-            //規則一餘數為零，且檢查碼需為零
-            if (lastNum == 0 && (total % 10) != lastNum) {
-                alert("身份證號碼寫錯了！");
-                return false;
-            }
-            //規則二餘數與檢查碼需相符
-            if (lastNum != 0 && (10 - (total % 10)) != lastNum) {
-                alert("身份證號碼寫錯了！");
-                return false;
-            }
-            return true;
+        function GetDatetime() {
+            var date = new Date();
+            var datetimestring = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            return datetimestring;
         }
-        function checkPhone(phoneStr) {
-            var regExpID = /^[09]{2}[0-9]{8}$/;
-            if (regExpID.test(phoneStr)) {
-                return true;
+        function DeployContract() {
+            var username = document.getElementById("input_username").value;
+            var userid = document.getElementById("input_userid").value;
+            var userbirthday = document.getElementById("input_userbirthday").value;
+            var userphone = document.getElementById("input_userphone").value;
+            var useraddress = document.getElementById("input_usercity").value + document.getElementById("input_userarea").value + document.getElementById("input_address").value;
+            var sealipfshash = document.getElementById("SealImage_IPFSHash").value;
+            var sealfilename = document.getElementById("SealImage_FileName").value;
+            var sealfileformat = document.getElementById("SealImage_FileFormat").value;
+            var savedatetime = GetDatetime();
+
+            if (checkID(userid) && checkPhone(userphone) && sealipfshash !== "") {
+                var saveuserinfoContract = web3.eth.contract(save_User_Info_contractABI);
+                var saveuserinfo = saveuserinfoContract.new(
+                        {
+                            from: web3.eth.accounts[0],
+                            data: save_User_Info_contractByteCode,
+                            gas: '4700000'
+                        }, function (e, contract) {
+                    //console.log(e, contract);
+                    if (typeof contract.address !== 'undefined') {
+                        save_User_Info_contractAddress = contract.address;
+                        //console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+                        SaveUserData(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime);
+                    }
+                });
             } else {
-                return false;
+                alert("資料請勿空白！");
+            };
+        }
+        function  SaveUserData(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime) {
+            if (save_User_Info_contractABI !== "") {
+                web3.eth.defaultAccount = web3.eth.accounts[0];
+                var myContract = web3.eth.contract(save_User_Info_contractABI);
+                var myContractInstance = myContract.at(save_User_Info_contractAddress);
+                var result = myContractInstance.saveUserInfo(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime, {
+                    from: web3.eth.accounts[0],
+                    gas: 300000000
+                });
+                console.log(result);
+                alert("傳送成功！！");
+                location.reload("Bank_index.html");
             }
         }
 
@@ -241,7 +244,7 @@ and open the template in the editor.
                             <label><b>行動電話：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
-                            <input class="w3-input w3-border" type="text" id="input_userbirthday">
+                            <input class="w3-input w3-border" type="text" id="input_userphone">
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
@@ -296,7 +299,7 @@ and open the template in the editor.
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
-                        <button class="w3-btn w3-blue w3-block" onclick="">儲存</button>
+                        <button class="w3-btn w3-blue w3-block" onclick="DeployContract()">儲存</button>
                     </div>
                     <footer class="w3-container"></footer>
                 </div>

@@ -1,0 +1,25 @@
+pragma solidity ^0.4.18;
+contract SaveUserInfo{
+    string private username;
+    string private userID;
+    string private userbirthday;
+    string private userphone;
+    string private useraddress;
+    string private sealfilename;
+    string private sealfileformat;
+    string private sealipfshash;
+    string private savedatetime;
+    
+    
+    function saveUserInfo(string usname,string usid,string usbirday,string usphone,string usaddress,string sealfname,string sealfformat,string sealhash,string savedt)public{
+       username=usname;
+       userID=usid;
+       userbirthday=usbirday;
+       userphone=usphone;
+       useraddress=usaddress;
+       sealfilename=sealfname;
+       sealfileformat=sealfformat;
+       sealipfshash=sealhash;
+       savedatetime=savedt;
+    }
+}
