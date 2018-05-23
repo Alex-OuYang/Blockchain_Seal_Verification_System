@@ -132,9 +132,9 @@ and open the template in the editor.
             var userbirthday = document.getElementById("input_userbirthday").value;
             var userphone = document.getElementById("input_userphone").value;
             var useraddress = document.getElementById("input_usercity").value + document.getElementById("input_userarea").value + document.getElementById("input_address").value;
-            var sealipfshash = document.getElementById("SealImage_IPFSHash").value;
             var sealfilename = document.getElementById("SealImage_FileName").value;
             var sealfileformat = document.getElementById("SealImage_FileFormat").value;
+            var sealipfshash = document.getElementById("SealImage_IPFSHash").value;
             var savedatetime = GetDatetime();
 
             if (checkID(userid) && checkPhone(userphone) && sealipfshash !== "") {
@@ -149,19 +149,20 @@ and open the template in the editor.
                     if (typeof contract.address !== 'undefined') {
                         save_User_Info_contractAddress = contract.address;
                         //console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
-                        SaveUserData(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime);
+                        SaveUserData(username, userid, userbirthday, userphone, useraddress, sealfilename, sealfileformat, sealipfshash, savedatetime);
                     }
                 });
             } else {
                 alert("資料請勿空白！");
-            };
+            }
+            ;
         }
-        function  SaveUserData(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime) {
+        function  SaveUserData(username, userid, userbirthday, userphone, useraddress, sealfilename, sealfileformat, sealipfshash, savedatetime) {
             if (save_User_Info_contractABI !== "") {
                 web3.eth.defaultAccount = web3.eth.accounts[0];
                 var myContract = web3.eth.contract(save_User_Info_contractABI);
                 var myContractInstance = myContract.at(save_User_Info_contractAddress);
-                var result = myContractInstance.saveUserInfo(username, userid, userbirthday, userphone, useraddress, sealipfshash, sealfilename, sealfileformat, savedatetime, {
+                var result = myContractInstance.saveUserInfo(username, userid, userbirthday, userphone, useraddress, sealfilename, sealfileformat, sealipfshash, savedatetime, {
                     from: web3.eth.accounts[0],
                     gas: 300000000
                 });

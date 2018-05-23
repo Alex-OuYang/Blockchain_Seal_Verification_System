@@ -14,6 +14,7 @@ and open the template in the editor.
     <script src="js/sessionjs.js" type="text/javascript"></script>
     <script src="js/web3.js" type="text/javascript"></script>
     <script src="js/abi-decoder.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script>
         //連接區塊鏈
         //var connectIP = "140.124.93.79";
@@ -50,6 +51,7 @@ and open the template in the editor.
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
                 useraccount = sessionObj.account;
+                Cookies.remove('uploadfilehash');
                 GetTransactionDataList();
             } else {
                 location.href = "index.html";
@@ -133,7 +135,6 @@ and open the template in the editor.
                 if (typeof gettrandeCodeData2[i] !== "undefined") {
                     var thisaddr = gettrandeCodeData2[i].params[0].value;
                     if (thisaddr === e.value) {
-                        console.log(gettrandeCodeData2[i]);
                         var option = document.createElement("option");
                         option.setAttribute("value", gettrandeCodeData2[i].params[2].value);
                         var optionText = document.createTextNode(gettrandeCodeData2[i].params[2].value);
@@ -148,7 +149,6 @@ and open the template in the editor.
             var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
             for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                 if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === e.value) {
-                    console.log(getTransactiondeCodeData[i]);
                     document.getElementById("upload_username").value = getTransactiondeCodeData[i].params[0].value;
                     document.getElementById("upload_userid").value = getTransactiondeCodeData[i].params[1].value;
                     document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[8].value;
@@ -158,6 +158,11 @@ and open the template in the editor.
                     document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[7].value;
                 }
             }
+        }
+        function PassValueToCompareSealPage() {
+            var uploadfilehash = document.getElementById("upload_file_address").value;
+            Cookies.set('uploadfilehash', uploadfilehash);
+            location.href = "Bank_CompareSeal.html";
         }
     </script>
     <style>
@@ -277,7 +282,7 @@ and open the template in the editor.
                         </div>
                     </div>
                     <div class="w3-container w3-margin">
-                        <button class="w3-btn w3-blue w3-block" onclick="">比對印鑑</button>
+                        <button class="w3-btn w3-blue w3-block" onclick="PassValueToCompareSealPage()">傳送比對資料</button>
                     </div>
                     <footer class="w3-container"></footer>
                 </div>
