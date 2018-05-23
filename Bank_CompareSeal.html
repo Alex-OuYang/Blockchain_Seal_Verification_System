@@ -37,6 +37,12 @@ and open the template in the editor.
         //save_User_Info_contractABI
         var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
         //save_User_Info_contractABI
+
+        //save_compare_result
+        var save_compare_result_contractABI = [{"constant": false, "inputs": [{"name": "uphash", "type": "string"}, {"name": "bankusinfo", "type": "string"}, {"name": "cpresult", "type": "string"}, {"name": "cpsimilarity", "type": "string"}], "name": "saveCompareSealResult", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        var save_compare_result_contractByteCode = '0x608060405234801561001057600080fd5b506102b4806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806315d335d914610046575b600080fd5b34801561005257600080fd5b5061017f600480360381019080803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290505050610181565b005b83600090805190602001906101979291906101e3565b5082600190805190602001906101ae9291906101e3565b5081600290805190602001906101c59291906101e3565b5080600390805190602001906101dc9291906101e3565b5050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061022457805160ff1916838001178555610252565b82800160010185558215610252579182015b82811115610251578251825591602001919060010190610236565b5b50905061025f9190610263565b5090565b61028591905b80821115610281576000816000905550600101610269565b5090565b905600a165627a7a72305820d9414692ad2bf78b614ff042e0d78049a087fbd805a4c6eb39ff8a7effbd43be0029';
+        var save_compare_result_contractAddress = "";
+        //save_compare_result
         //合約區
 
 
@@ -105,23 +111,70 @@ and open the template in the editor.
             var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
             for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                 if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === uploadfilehash) {
+                    var securitiesSeal = "https://ipfs.io/ipfs/" + getTransactiondeCodeData[i].params[7].value;
+                    var img = document.getElementById("securitiesSeal");
+                    img.src = securitiesSeal;
                     var userID = getTransactiondeCodeData[i].params[1].value;
                     GetUserInfo(userID);
-                    /*  
-                     document.getElementById("upload_username").value = getTransactiondeCodeData[i].params[0].value;
-                     document.getElementById("upload_userid").value = getTransactiondeCodeData[i].params[1].value;
-                     document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[8].value;
-                     document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[2].value + "." + getTransactiondeCodeData[i].params[3].value;
-                     document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[4].value;
-                     document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[5].value + "." + getTransactiondeCodeData[i].params[6].value;
-                     document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[7].value;
-                     */
                 }
             }
         }
         function GetUserInfo(userID) {
             var getUserdeCodeData = GetTranscation(save_User_Info_contractABI);
-            console.log(getUserdeCodeData);
+            for (var i = 0; i < getUserdeCodeData.length; i++) {
+                if ((typeof getUserdeCodeData[i] !== "undefined") && getUserdeCodeData[i].params[1].value === userID) {
+                    document.getElementById("bank_user_info").value = getUserdeCodeData[i].transcationhash;
+                    document.getElementById("username").value = getUserdeCodeData[i].params[0].value;
+                    document.getElementById("userid").value = getUserdeCodeData[i].params[1].value;
+                    var bankSeal = "https://ipfs.io/ipfs/" + getUserdeCodeData[i].params[7].value;
+                    var img = document.getElementById("bankSeal");
+                    img.src = bankSeal;
+                }
+            }
+        }
+        function DployContract() {
+            var uploadFileHash = document.getElementById("upload_file_hash").value;
+            var bankUserInfo = document.getElementById("bank_user_info").value;
+            var compareResult = "成功";
+            var compareSimilarity = "99.99";
+            /*
+             var compareResult = document.getElementById("compare_result").value;
+             var compareSimilarity = document.getElementById("compare_similarity").value;
+             */
+            console.log(compareResult);
+            if (compareResult.length != 0 && compareSimilarity.length != 0) {
+                var savecomparesealresultContract = web3.eth.contract(save_compare_result_contractABI);
+                var savecomparesealresult = savecomparesealresultContract.new(
+                        {
+                            from: web3.eth.accounts[0],
+                            data: save_compare_result_contractByteCode,
+                            gas: '4700000'
+                        }, function (e, contract) {
+                    //console.log(e, contract);
+                    if (typeof contract.address !== 'undefined') {
+                        save_compare_result_contractAddress = contract.address;
+                        SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity);
+                        //console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+                    }
+                });
+            } else {
+                alert("尚未比對結果！！");
+            }
+        }
+        function SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity) {
+            if (save_compare_result_contractABI !== "") {
+                web3.eth.defaultAccount = web3.eth.accounts[0];
+                var myContract = web3.eth.contract(save_compare_result_contractABI);
+                var myContractInstance = myContract.at(save_compare_result_contractAddress);
+                var result = myContractInstance.saveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity, {
+                    from: web3.eth.accounts[0],
+                    gas: 300000000
+                });
+                console.log(result);
+                alert("傳送成功！！");
+                //location.reload("Bank_index.html");
+                Cookies.remove('uploadfilehash');
+            }
         }
     </script>
     <style>
@@ -203,11 +256,11 @@ and open the template in the editor.
                         <div class="w3-card-4 ">
                             <div class="w3-container w3-center w3-col l6 m6 s6">
                                 <div class="w3-center w3-margin"><b>銀行原留印鑑</b></div>
-                                <img src="https://www.w3schools.com/w3css/img_avatar3.png" alt="Avatar" style="width:100px;height: 100px;">
+                                <img id="bankSeal" style="width:100px;height: 100px;">
                             </div>
                             <div class="w3-container w3-center w3-col l6 m6 s6">
                                 <div class="w3-center w3-margin"><b>證券商端印鑑</b></div>
-                                <img src="https://www.w3schools.com/w3css/img_avatar3.png" alt="Avatar" style="width:100px;height: 100px;">
+                                <img id="securitiesSeal" style="width:100px;height: 100px;">
                             </div>
                         </div>
                     </div>
@@ -215,6 +268,9 @@ and open the template in the editor.
                     <input type="hidden" id="bank_user_info"/>
                     <div class="w3-container w3-margin">
                         <button class="w3-btn w3-blue w3-block" onclick="">比對印鑑</button>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <button class="w3-btn w3-green w3-block" onclick="DployContract()">儲存比對結果</button>
                     </div>
                     <footer class="w3-container"></footer>
                 </div>

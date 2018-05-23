@@ -1,0 +1,15 @@
+pragma solidity ^0.4.18;
+contract SaveCompareSealResult{
+    string private uploadhash;
+    string private bankuserinfohash;
+    string private compareresult;
+    string private comparesimilarity;
+    
+    
+    function saveCompareSealResult(string uphash,string bankusinfo,string cpresult,string cpsimilarity)public{
+       uploadhash=uphash;
+       bankuserinfohash=bankusinfo;
+       compareresult=cpresult;
+       comparesimilarity=cpsimilarity;
+    }
+}
