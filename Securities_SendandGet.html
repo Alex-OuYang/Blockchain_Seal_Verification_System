@@ -106,11 +106,13 @@ and open the template in the editor.
                 for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                     if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === e.value) {
                         console.log(getTransactiondeCodeData[i]);
-                        document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[6].value;
-                        document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[0].value + "." + getTransactiondeCodeData[i].params[1].value;
-                        document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[2].value;
-                        document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[3].value + "." + getTransactiondeCodeData[i].params[4].value;
-                        document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[5].value;
+                        document.getElementById("upload_username").value = getTransactiondeCodeData[i].params[0].value;
+                        document.getElementById("upload_userid").value = getTransactiondeCodeData[i].params[1].value;
+                        document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[8].value;
+                        document.getElementById("opfile_name").value = getTransactiondeCodeData[i].params[2].value + "." + getTransactiondeCodeData[i].params[3].value;
+                        document.getElementById("opfile_ipfs_hash").value = getTransactiondeCodeData[i].params[4].value;
+                        document.getElementById("sealfile_name").value = getTransactiondeCodeData[i].params[5].value + "." + getTransactiondeCodeData[i].params[6].value;
+                        document.getElementById("seal_image").value = getTransactiondeCodeData[i].params[7].value;
                     }
                 }
             }
@@ -248,6 +250,22 @@ and open the template in the editor.
                     <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom"><b>顯示上傳訊息</b></div>
                     <div class="w3-container w3-margin">
                         <div class="w3-col l2 m2 s2">
+                            <label><b>客戶姓名：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="upload_username" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>身分證字號：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="upload_userid" readonly>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
                             <label><b>上傳時間：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
@@ -280,7 +298,7 @@ and open the template in the editor.
                     </div>
                     <div class="w3-container w3-margin">
                         <div class="w3-col l2 m2 s2">
-                            <label><b>開戶文件<br>IPFS Hash：</b></label>
+                            <label><b>印鑑圖檔<br>IPFS Hash：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
                             <input class="w3-input w3-border" type="text" id="seal_image" readonly>
