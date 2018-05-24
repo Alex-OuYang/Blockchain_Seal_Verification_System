@@ -96,7 +96,8 @@ and open the template in the editor.
         function GetBankUserInfo() {
             var tabledata = [];
             var getUserdeCodeData = GetTranscation(save_User_Info_contractABI);
-            var table = document.getElementById("bank_user_info_table");
+            //var table = document.getElementById("bank_user_info_table");
+            var showdiv = document.getElementById("show_seal_div");
             for (var i = 0; i < getUserdeCodeData.length; i++) {
                 if (typeof (getUserdeCodeData[i]) !== "undefined") {
                     var dataObject = {
@@ -107,29 +108,37 @@ and open the template in the editor.
                     tabledata.push(dataObject);
                 }
             }
-            console.log(tabledata);
-            //組資料
+            //console.log(tabledata);
+            //資料顯示於頁面
             for (var j = 0; j < tabledata.length; j++) {
-                var tr = document.createElement("tr");
-                console.log(tabledata[j]);
+                var div = document.createElement("div");
+                div.className = "w3-container w3-margin w3-center";
                 for (var k = 0; k < 3; k++) {
-                    var td = document.createElement("td");
+                    var divin = document.createElement("div");
+                    divin.className = "w3-col l4 m4 s4";
+                    var label = document.createElement("label");
+                    var img = document.createElement("img");
                     switch (k) {
                         case 0:
-                            td.textContent = tabledata[j].name;
+                            label.textContent = tabledata[j].name;
+                            divin.appendChild(label);
                             break;
                         case 1:
-                            td.textContent = tabledata[j].id;
+                            label.textContent = tabledata[j].id;
+                            divin.appendChild(label);
                             break;
                         case 2:
-                            var img = document.createElement("img");
                             img.src = "https://ipfs.io/ipfs/" + tabledata[j].seal;
-                            td.appendChild(img);
+                            divin.appendChild(img);
+                            break;
                     }
-                    tr.appendChild(td);
+                    div.appendChild(divin);
                 }
-                table.appendChild(tr);
+                showdiv.appendChild(div);
             }
+            var footer = document.createElement("footer");
+            footer.className = "w3-container";
+            showdiv.appendChild(footer);
         }
     </script>
     <style>
@@ -170,13 +179,22 @@ and open the template in the editor.
         <!-- !PAGE CONTENT! -->
         <div class="w3-main" style="margin-left:425px;margin-top:60px;">
             <div class="w3-container">
-                <table class="w3-table-all w3-card-4 w3-hoverable w3-centered" id="bank_user_info_table">
-                    <tr class="w3-blue">
-                        <th>客戶姓名</th>
-                        <th>身份證字號</th>
-                        <th>印鑑圖檔</th>
-                    </tr>
-                </table>
+                <div class="w3-card-4 w3-margin" id="show_seal_div">
+                    <header class="w3-container w3-blue">
+                        <h5><b><i class="fa fa-eye"></i>&nbsp;客戶印鑑</b></h5>
+                    </header>
+                    <div class="w3-container w3-margin w3-center">
+                        <div class="w3-col l4 m4 s4">
+                            <label><b>客戶姓名</b></label>
+                        </div>
+                        <div class="w3-col l4 m4 s4">
+                            <label><b>身分證字號</b></label>
+                        </div>
+                        <div class="w3-col l4 m4 s4">
+                            <label><b>印鑑圖檔</b></label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </body>
