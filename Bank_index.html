@@ -96,7 +96,6 @@ and open the template in the editor.
         function GetBankUserInfo() {
             var tabledata = [];
             var getUserdeCodeData = GetTranscation(save_User_Info_contractABI);
-            //var table = document.getElementById("bank_user_info_table");
             var showdiv = document.getElementById("show_seal_div");
             for (var i = 0; i < getUserdeCodeData.length; i++) {
                 if (typeof (getUserdeCodeData[i]) !== "undefined") {
@@ -113,21 +112,26 @@ and open the template in the editor.
             for (var j = 0; j < tabledata.length; j++) {
                 var div = document.createElement("div");
                 div.className = "w3-container w3-margin w3-center";
-                for (var k = 0; k < 3; k++) {
+                for (var k = 0; k < 4; k++) {
                     var divin = document.createElement("div");
-                    divin.className = "w3-col l4 m4 s4";
+                    divin.className = "w3-col l3 m3 s3";
                     var label = document.createElement("label");
+                    label.className = "w3-xlarge"
                     var img = document.createElement("img");
                     switch (k) {
                         case 0:
-                            label.textContent = tabledata[j].name;
+                            label.textContent = j;
                             divin.appendChild(label);
                             break;
                         case 1:
-                            label.textContent = tabledata[j].id;
+                            label.textContent = tabledata[j].name;
                             divin.appendChild(label);
                             break;
                         case 2:
+                            label.textContent = tabledata[j].id;
+                            divin.appendChild(label);
+                            break;
+                        case 3:
                             img.src = "https://ipfs.io/ipfs/" + tabledata[j].seal;
                             divin.appendChild(img);
                             break;
@@ -184,13 +188,16 @@ and open the template in the editor.
                         <h5><b><i class="fa fa-eye"></i>&nbsp;客戶印鑑</b></h5>
                     </header>
                     <div class="w3-container w3-margin w3-center">
-                        <div class="w3-col l4 m4 s4">
+                        <div class="w3-col l3 m3 s3">
+                            <label><b>編號</b></label>
+                        </div>
+                        <div class="w3-col l3 m3 s3">
                             <label><b>客戶姓名</b></label>
                         </div>
-                        <div class="w3-col l4 m4 s4">
+                        <div class="w3-col l3 m3 s3">
                             <label><b>身分證字號</b></label>
                         </div>
-                        <div class="w3-col l4 m4 s4">
+                        <div class="w3-col l3 m3 s3">
                             <label><b>印鑑圖檔</b></label>
                         </div>
                     </div>
