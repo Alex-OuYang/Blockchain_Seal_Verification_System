@@ -12,7 +12,32 @@ and open the template in the editor.
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="js/sessionjs.js" type="text/javascript"></script>
+    <script src="js/web3.js" type="text/javascript"></script>
+    <script src="js/abi-decoder.js" type="text/javascript"></script>
     <script>
+        //連接區塊鏈
+        //var connectIP = "140.124.93.79";
+        var connectIP = "localhost";
+        var Web3 = require('web3');
+        var web3 = new Web3();
+        web3.setProvider(new web3.providers.HttpProvider("http://" + connectIP + ":8545"));
+        var isConnected = web3.isConnected();
+        //console.log(isConnected);
+        if (!isConnected) {
+            alert("請先連接區塊鏈！！");
+        }
+        //連接區塊鏈
+
+        //合約區
+        //save_User_Info_contractABI
+        var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //save_User_Info_contractABI
+
+        //save_compare_result
+        var save_compare_result_contractABI = [{"constant": false, "inputs": [{"name": "uphash", "type": "string"}, {"name": "bankusinfo", "type": "string"}, {"name": "cpresult", "type": "string"}, {"name": "cpsimilarity", "type": "string"}], "name": "saveCompareSealResult", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //save_compare_result
+        //合約區
+
         var mySidebar;
         var overlayBg;
         window.onload = function () {
@@ -22,6 +47,7 @@ and open the template in the editor.
             if (sessionObj != null) {
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
+                GetBankUserInfo();
             } else {
                 location.href = "index.html";
             }
@@ -42,6 +68,68 @@ and open the template in the editor.
         function Logout() {
             Session.clear();
             location.href = "index.html";
+        }
+        function GetTranscation(abi) {
+            var decodedDataArray = [];
+            var blockNumber = web3.eth.blockNumber;
+            for (var i = 1; i <= blockNumber; i++) {
+                var blockinfo = web3.eth.getBlock(i);
+                var blockTransactionLength = blockinfo.transactions.length;
+                if (blockTransactionLength > 0) {
+                    for (var j = 0; j < blockTransactionLength; j++) {
+                        var transaction = web3.eth.getTransaction(blockinfo.transactions[j]);
+                        abiDecoder.addABI(abi);
+                        var transaction_input = transaction.input;
+                        var decodedData = abiDecoder.decodeMethod(transaction_input);
+                        if (typeof decodedData != "undefined") {
+                            decodedData.transcationhash = transaction.hash;
+                        }
+                        decodedDataArray.push(decodedData);
+                        //console.log(decodedData);
+                    }
+                }
+            }
+            //console.log(decodedDataArray);
+            abiDecoder.removeABI(abi);//清除abi cache
+            return decodedDataArray;
+        }
+        function GetBankUserInfo() {
+            var tabledata = [];
+            var getUserdeCodeData = GetTranscation(save_User_Info_contractABI);
+            var table = document.getElementById("bank_user_info_table");
+            for (var i = 0; i < getUserdeCodeData.length; i++) {
+                if (typeof (getUserdeCodeData[i]) !== "undefined") {
+                    var dataObject = {
+                        name: getUserdeCodeData[i].params[0].value,
+                        id: getUserdeCodeData[i].params[1].value,
+                        seal: getUserdeCodeData[i].params[7].value
+                    }
+                    tabledata.push(dataObject);
+                }
+            }
+            console.log(tabledata);
+            //組資料
+            for (var j = 0; j < tabledata.length; j++) {
+                var tr = document.createElement("tr");
+                console.log(tabledata[j]);
+                for (var k = 0; k < 3; k++) {
+                    var td = document.createElement("td");
+                    switch (k) {
+                        case 0:
+                            td.textContent = tabledata[j].name;
+                            break;
+                        case 1:
+                            td.textContent = tabledata[j].id;
+                            break;
+                        case 2:
+                            var img = document.createElement("img");
+                            img.src = "https://ipfs.io/ipfs/" + tabledata[j].seal;
+                            td.appendChild(img);
+                    }
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
         }
     </script>
     <style>
@@ -81,6 +169,16 @@ and open the template in the editor.
 
         <!-- !PAGE CONTENT! -->
         <div class="w3-main" style="margin-left:425px;margin-top:60px;">
+            <div class="w3-container">
+                <h2>客戶印鑑</h2>
+                <table class="w3-table-all w3-card-4 w3-hoverable" id="bank_user_info_table">
+                    <tr class="w3-blue">
+                        <th>客戶姓名</th>
+                        <th>身份證字號</th>
+                        <th>印鑑圖檔</th>
+                    </tr>
+                </table>
+            </div>
         </div>
     </body>
 </html>
