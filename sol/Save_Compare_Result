@@ -4,12 +4,13 @@ contract SaveCompareSealResult{
     string private bankuserinfohash;
     string private compareresult;
     string private comparesimilarity;
+    string private datetime;
     
-    
-    function saveCompareSealResult(string uphash,string bankusinfo,string cpresult,string cpsimilarity)public{
+    function saveCompareSealResult(string uphash,string bankusinfo,string cpresult,string cpsimilarity,string dt)public{
        uploadhash=uphash;
        bankuserinfohash=bankusinfo;
        compareresult=cpresult;
        comparesimilarity=cpsimilarity;
+       datetime=dt;
     }
 }

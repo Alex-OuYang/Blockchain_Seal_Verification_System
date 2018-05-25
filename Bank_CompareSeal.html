@@ -39,8 +39,8 @@ and open the template in the editor.
         //save_User_Info_contractABI
 
         //save_compare_result
-        var save_compare_result_contractABI = [{"constant": false, "inputs": [{"name": "uphash", "type": "string"}, {"name": "bankusinfo", "type": "string"}, {"name": "cpresult", "type": "string"}, {"name": "cpsimilarity", "type": "string"}], "name": "saveCompareSealResult", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
-        var save_compare_result_contractByteCode = '0x608060405234801561001057600080fd5b506102b4806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806315d335d914610046575b600080fd5b34801561005257600080fd5b5061017f600480360381019080803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509192919290505050610181565b005b83600090805190602001906101979291906101e3565b5082600190805190602001906101ae9291906101e3565b5081600290805190602001906101c59291906101e3565b5080600390805190602001906101dc9291906101e3565b5050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061022457805160ff1916838001178555610252565b82800160010185558215610252579182015b82811115610251578251825591602001919060010190610236565b5b50905061025f9190610263565b5090565b61028591905b80821115610281576000816000905550600101610269565b5090565b905600a165627a7a72305820d9414692ad2bf78b614ff042e0d78049a087fbd805a4c6eb39ff8a7effbd43be0029';
+        var save_compare_result_contractABI = [{"constant": false, "inputs": [{"name": "uphash", "type": "string"}, {"name": "bankusinfo", "type": "string"}, {"name": "cpresult", "type": "string"}, {"name": "cpsimilarity", "type": "string"}, {"name": "dt", "type": "string"}], "name": "saveCompareSealResult", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        var save_compare_result_contractByteCode = '0x6060604052341561000f57600080fd5b6102fa8061001e6000396000f300606060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806371fdbb1314610046575b600080fd5b341561005157600080fd5b6101ad600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919050506101af565b005b84600090805190602001906101c5929190610229565b5083600190805190602001906101dc929190610229565b5082600290805190602001906101f3929190610229565b50816003908051906020019061020a929190610229565b508060049080519060200190610221929190610229565b505050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061026a57805160ff1916838001178555610298565b82800160010185558215610298579182015b8281111561029757825182559160200191906001019061027c565b5b5090506102a591906102a9565b5090565b6102cb91905b808211156102c75760008160009055506001016102af565b5090565b905600a165627a7a72305820a6ccb7f4170c2bdd2f2bb1bbd4eb0d45bc03423fc566587a62358addbf76867c0029';
         var save_compare_result_contractAddress = "";
         //save_compare_result
         //合約區
@@ -107,6 +107,11 @@ and open the template in the editor.
             abiDecoder.removeABI(abi);//清除abi cache
             return decodedDataArray;
         }
+        function GetDatetime() {
+            var date = new Date();
+            var datetimestring = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            return datetimestring;
+        }
         function GetUploadInfo(uploadfilehash) {
             var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
             for (var i = 0; i < getTransactiondeCodeData.length; i++) {
@@ -133,10 +138,12 @@ and open the template in the editor.
             }
         }
         function DployContract() {
+            var datatime = GetDatetime();
             var uploadFileHash = document.getElementById("upload_file_hash").value;
             var bankUserInfo = document.getElementById("bank_user_info").value;
             var compareResult = "成功";
             var compareSimilarity = "99.99";
+
             /*
              var compareResult = document.getElementById("compare_result").value;
              var compareSimilarity = document.getElementById("compare_similarity").value;
@@ -153,20 +160,20 @@ and open the template in the editor.
                     //console.log(e, contract);
                     if (typeof contract.address !== 'undefined') {
                         save_compare_result_contractAddress = contract.address;
-                        SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity);
-                        //console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
+                        SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity, datatime)
+                        console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
                     }
-                });
+                })
             } else {
                 alert("尚未比對結果！！");
             }
         }
-        function SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity) {
+        function SaveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity, datatime) {
             if (save_compare_result_contractABI !== "") {
                 web3.eth.defaultAccount = web3.eth.accounts[0];
                 var myContract = web3.eth.contract(save_compare_result_contractABI);
                 var myContractInstance = myContract.at(save_compare_result_contractAddress);
-                var result = myContractInstance.saveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity, {
+                var result = myContractInstance.saveCompareSealResult(uploadFileHash, bankUserInfo, compareResult, compareSimilarity, datatime, {
                     from: web3.eth.accounts[0],
                     gas: 300000000
                 });
