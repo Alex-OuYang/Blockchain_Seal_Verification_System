@@ -63,7 +63,7 @@ and open the template in the editor.
                 document.getElementById("upload_file_hash").value = uploadfilehash;
                 GetUploadInfo(uploadfilehash);
             } else {
-                location.href = "Bank_SendandGet.html";
+                location.href = "Bank_index.html";
             }
         };
         function w3_open() {
@@ -173,8 +173,7 @@ and open the template in the editor.
                 console.log(result);
                 Cookies.remove('uploadfilehash');
                 alert("傳送成功！！");
-                location.reload("Bank_index.html");
-                
+                location.href = "Bank_index.html";
             }
         }
     </script>
