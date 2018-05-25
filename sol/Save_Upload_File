@@ -1,5 +1,7 @@
 pragma solidity ^0.4.18;
 contract SaveUploadFile{
+    string private username;
+    string private userid;
     string private opfilename;
     string private opfileformat;
     string private opipfshash;
@@ -8,9 +10,11 @@ contract SaveUploadFile{
     string private sealipfshash;
     string private savedatetime;
     address private saveaccount;
+    address private bankaccount;
     
-    
-    function saveUploadFile(string opname,string opformat,string ophash,string sealname,string sealformat,string sealhash,string datetime,address acc)public{
+    function saveUploadFile(string usname,string usid,string opname,string opformat,string ophash,string sealname,string sealformat,string sealhash,string datetime,address acc,address bankacc)public{
+        username=usname;
+        userid=usid;
         opfilename=opname;
         opfileformat=opformat;
         opipfshash=ophash;
@@ -19,5 +23,6 @@ contract SaveUploadFile{
         sealipfshash=sealhash;
         savedatetime=datetime;
         saveaccount=acc;
+        bankaccount=bankacc;
     }
 }
