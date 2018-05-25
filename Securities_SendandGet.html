@@ -39,8 +39,8 @@ and open the template in the editor.
             var register_Account_contractABI = [{"constant": false, "inputs": [{"name": "id", "type": "string"}, {"name": "reacc", "type": "address"}, {"name": "prikey", "type": "string"}, {"name": "pubkey", "type": "string"}, {"name": "pwd", "type": "string"}, {"name": "redt", "type": "string"}], "name": "registerAccount", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
             //register_Account contractABI
 
-            //upload_file_address_contractABI
-            var upload_file_address_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usID", "type": "string"}, {"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "saveUploadFile", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+            //upload_file_contractABI
+            var upload_file_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}, {"name": "bankacc", "type": "address"}], "name": "saveUploadFile", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
             //upload_file_address_contractABI
 
             //Send_Transaction_To_Bank_contractABI
@@ -62,7 +62,6 @@ and open the template in the editor.
                     document.getElementById("idshow").textContent = sessionObj.id;
                     document.getElementById("accshow").textContent = sessionObj.account;
                     useraccount = sessionObj.account;
-                    GetBankAccountList();
                     GetTransactionList();
                 } else {
                     location.href = "index.html";
@@ -85,27 +84,11 @@ and open the template in the editor.
                 Session.clear();
                 location.href = "index.html";
             }
-            function GetBankAccountList() {
-                var getAccdeCodeData = GetTranscation(register_Account_contractABI);
-                var select = document.getElementById("to_bank_select");
-                for (var i = 0; i < getAccdeCodeData.length; i++) {
-                    if (typeof getAccdeCodeData[i] !== "undefined") {
-                        if (getAccdeCodeData[i].params[0].value == "Bank") {
-                            var accountData = getAccdeCodeData[i].params[1].value;
-                            var option = document.createElement("option");
-                            option.setAttribute("value", accountData);
-                            var optionText = document.createTextNode(accountData);
-                            option.append(optionText);
-                            select.append(option);
-                        }
-                    }
-                }
-            }
             function GetUploadInfo(e) {
-                var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+                var getTransactiondeCodeData = GetTranscation(upload_file_contractABI);
                 for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                     if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === e.value) {
-                        console.log(getTransactiondeCodeData[i]);
+                        document.getElementById("to_bank_input").value = getTransactiondeCodeData[i].params[10].value;
                         document.getElementById("upload_username").value = getTransactiondeCodeData[i].params[0].value;
                         document.getElementById("upload_userid").value = getTransactiondeCodeData[i].params[1].value;
                         document.getElementById("upload_datetime").value = getTransactiondeCodeData[i].params[8].value;
@@ -117,7 +100,7 @@ and open the template in the editor.
                 }
             }
             function GetTransactionList() {
-                var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+                var getTransactiondeCodeData = GetTranscation(upload_file_contractABI);
                 var select = document.getElementById("upload_file_address");
                 for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                     if (typeof getTransactiondeCodeData[i] !== "undefined") {
@@ -233,14 +216,6 @@ and open the template in the editor.
 
                     <div class="w3-container w3-margin">
                         <div class="w3-col l2 m2 s2">
-                            <label><b>To Bank：</b></label>
-                        </div>
-                        <div class="w3-col l10 m10 s10">
-                            <select class="w3-col l12 m12 s12 w3-padding-small" id="to_bank_select"></select>
-                        </div>
-                    </div>
-                    <div class="w3-container w3-margin">
-                        <div class="w3-col l2 m2 s2">
                             <label><b>Upload Address：</b></label>
                         </div>
                         <div class="w3-col l10 m10 s10">
@@ -248,6 +223,14 @@ and open the template in the editor.
                         </div>
                     </div>
                     <div class="w3-col l12 m12 s12 w3-center w3-margin-bottom"><b>顯示上傳訊息</b></div>
+                    <div class="w3-container w3-margin">
+                        <div class="w3-col l2 m2 s2">
+                            <label><b>To Bank：</b></label>
+                        </div>
+                        <div class="w3-col l10 m10 s10">
+                            <input class="w3-input w3-border" type="text" id="to_bank_input" readonly>
+                        </div>
+                    </div>
                     <div class="w3-container w3-margin">
                         <div class="w3-col l2 m2 s2">
                             <label><b>客戶姓名：</b></label>
