@@ -9,9 +9,11 @@ contract SaveUserInfo{
     string private sealfileformat;
     string private sealipfshash;
     string private savedatetime;
+    address private bankaddress;
     
     
-    function saveUserInfo(string usname,string usid,string usbirday,string usphone,string usaddress,string sealfname,string sealfformat,string sealhash,string savedt)public{
+    function saveUserInfo(address bankaddr,string usname,string usid,string usbirday,string usphone,string usaddress,string sealfname,string sealfformat,string sealhash,string savedt)public{
+       bankaddress=bankaddr;
        username=usname;
        userID=usid;
        userbirthday=usbirday;

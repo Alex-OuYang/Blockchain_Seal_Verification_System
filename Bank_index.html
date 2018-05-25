@@ -30,7 +30,7 @@ and open the template in the editor.
 
         //合約區
         //save_User_Info_contractABI
-        var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "bankaddr", "type": "address"}, {"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
         //save_User_Info_contractABI
 
         //save_compare_result
@@ -40,6 +40,7 @@ and open the template in the editor.
 
         var mySidebar;
         var overlayBg;
+        var bankaccount;
         window.onload = function () {
             mySidebar = document.getElementById("mySidebar");
             overlayBg = document.getElementById("myOverlay");
@@ -47,6 +48,7 @@ and open the template in the editor.
             if (sessionObj != null) {
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
+                bankaccount = sessionObj.account;
                 GetBankUserInfo();
             } else {
                 location.href = "index.html";
@@ -98,11 +100,11 @@ and open the template in the editor.
             var getUserdeCodeData = GetTranscation(save_User_Info_contractABI);
             var showdiv = document.getElementById("show_seal_div");
             for (var i = 0; i < getUserdeCodeData.length; i++) {
-                if (typeof (getUserdeCodeData[i]) !== "undefined") {
+                if (typeof (getUserdeCodeData[i]) !== "undefined" && getUserdeCodeData[i].params[0].value === bankaccount) {
                     var dataObject = {
-                        name: getUserdeCodeData[i].params[0].value,
-                        id: getUserdeCodeData[i].params[1].value,
-                        seal: getUserdeCodeData[i].params[7].value
+                        name: getUserdeCodeData[i].params[1].value,
+                        id: getUserdeCodeData[i].params[2].value,
+                        seal: getUserdeCodeData[i].params[8].value
                     }
                     tabledata.push(dataObject);
                 }
@@ -120,7 +122,7 @@ and open the template in the editor.
                     var img = document.createElement("img");
                     switch (k) {
                         case 0:
-                            label.textContent = j+1;
+                            label.textContent = j + 1;
                             divin.appendChild(label);
                             break;
                         case 1:
