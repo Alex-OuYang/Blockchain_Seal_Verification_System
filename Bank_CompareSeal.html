@@ -30,9 +30,9 @@ and open the template in the editor.
         //連接區塊鏈
 
         //合約區
-        //upload_file_address_contractABI
-        var upload_file_address_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usID", "type": "string"}, {"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}], "name": "saveUploadFile", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
-        //upload_file_address_contractABI
+        //upload_file_contractABI
+        var upload_file_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}, {"name": "bankacc", "type": "address"}], "name": "saveUploadFile", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //upload_file_contractABI
 
         //save_User_Info_contractABI
         var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
@@ -113,7 +113,7 @@ and open the template in the editor.
             return datetimestring;
         }
         function GetUploadInfo(uploadfilehash) {
-            var getTransactiondeCodeData = GetTranscation(upload_file_address_contractABI);
+            var getTransactiondeCodeData = GetTranscation(upload_file_contractABI);
             for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                 if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === uploadfilehash) {
                     var securitiesSeal = "https://ipfs.io/ipfs/" + getTransactiondeCodeData[i].params[7].value;
