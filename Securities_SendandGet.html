@@ -158,7 +158,7 @@ and open the template in the editor.
             }
             function SaveTransactionData() {
                 var fromaccount = useraccount;
-                var toaccount = document.getElementById("to_bank_select").value;
+                var toaccount = document.getElementById("to_bank_input").value;
                 var message = document.getElementById("upload_file_address").value;
                 //console.log(fromaccount + "," + toaccount + "," + message);
                 if (Send_Transaction_To_Bank_contractABI !== "") {
