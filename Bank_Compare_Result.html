@@ -28,6 +28,16 @@ and open the template in the editor.
         }
         //連接區塊鏈
 
+        //合約區
+        //save_User_Info_contractABI
+        var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "bankaddr", "type": "address"}, {"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //save_User_Info_contractABI
+
+        //save_compare_result
+        var save_compare_result_contractABI = [{"constant": false, "inputs": [{"name": "uphash", "type": "string"}, {"name": "bankusinfo", "type": "string"}, {"name": "cpresult", "type": "string"}, {"name": "cpsimilarity", "type": "string"}, {"name": "dt", "type": "string"}, {"name": "saveacc", "type": "address"}], "name": "saveCompareSealResult", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //save_compare_result
+        //合約區
+
         var mySidebar;
         var overlayBg;
         var bankaccount;
@@ -39,6 +49,7 @@ and open the template in the editor.
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
                 bankaccount = sessionObj.account;
+                GetUserList();
             } else {
                 location.href = "index.html";
             }
@@ -59,6 +70,56 @@ and open the template in the editor.
         function Logout() {
             Session.clear();
             location.href = "index.html";
+        }
+        function AccordionFunc(id) {
+            var x = document.getElementById(id);
+            if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+            } else {
+                x.className = x.className.replace(" w3-show", "");
+            }
+        }
+        function GetTranscation(abi) {
+            var decodedDataArray = [];
+            var blockNumber = web3.eth.blockNumber;
+            for (var i = 1; i <= blockNumber; i++) {
+                var blockinfo = web3.eth.getBlock(i);
+                var blockTransactionLength = blockinfo.transactions.length;
+                if (blockTransactionLength > 0) {
+                    for (var j = 0; j < blockTransactionLength; j++) {
+                        var transaction = web3.eth.getTransaction(blockinfo.transactions[j]);
+                        abiDecoder.addABI(abi);
+                        var transaction_input = transaction.input;
+                        var decodedData = abiDecoder.decodeMethod(transaction_input);
+                        if (typeof decodedData != "undefined") {
+                            decodedData.transcationhash = transaction.hash;
+                        }
+                        decodedDataArray.push(decodedData);
+                        //console.log(decodedData);
+                    }
+                }
+            }
+            //console.log(decodedDataArray);
+            abiDecoder.removeABI(abi);//清除abi cache
+            return decodedDataArray;
+        }
+        function GetUserList() {
+            var getCompareResult = GetTranscation(save_compare_result_contractABI);
+            for (var i = 0; i < getCompareResult.length; i++) {
+                if (typeof (getCompareResult[i]) != "undefined" && getCompareResult[i].params[5].value == bankaccount) {
+                    console.log(getCompareResult[i]);
+                    //var thisUserInfo = getCompareResult[i].params[1].value;
+                    GetUserCompareData();
+                }
+            }
+        }
+        function GetUserCompareData() {
+            var getUserList = GetTranscation(save_User_Info_contractABI);
+            for (var i = 0; i < getUserList.length; i++) {
+                if (typeof (getUserList[i]) != "undefined") {
+                    console.log(getUserList[i]);
+                }
+            }
         }
     </script>
     <style>
@@ -99,6 +160,53 @@ and open the template in the editor.
 
         <!-- !PAGE CONTENT! -->
         <div class="w3-main" style="margin-left:425px;margin-top:60px;">
+            <div class="w3-container">
+                <div class="w3-card-4 w3-margin">
+                    <header class="w3-container w3-blue">
+                        <h5><b><i class="fa fa-eye"></i>&nbsp;Compare&nbsp;Result&nbsp;View</b></h5>
+                    </header>
+                    <div class="w3-container w3-margin">
+                        <button onclick="AccordionFunc('Demo1')" class="w3-button w3-block w3-green w3-left-align">Accordion 1</button>
+                        <div id="Demo1" class="w3-hide">
+                            <div class="w3-panel">
+                                <ul class="w3-ul w3-hoverable w3-border">
+                                    <li>Jill</li>
+                                    <li>Eve</li>
+                                    <li>Adam</li>
+                                </ul>
+                            </div> 
+                            <div class="w3-panel">
+                                <ul class="w3-ul w3-hoverable w3-border">
+                                    <li>Jill</li>
+                                    <li>Eve</li>
+                                    <li>Adam</li>
+                                </ul>
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="w3-container w3-margin">
+                        <button onclick="AccordionFunc('Demo2')" class="w3-button w3-block w3-green w3-left-align">
+                            Accordion 1</button>
+                        <div id="Demo2" class="w3-hide">
+                            <div class="w3-panel">
+                                <ul class="w3-ul w3-hoverable w3-border">
+                                    <li>Jill</li>
+                                    <li>Eve</li>
+                                    <li>Adam</li>
+                                </ul>
+                            </div> 
+                            <div class="w3-panel">
+                                <ul class="w3-ul w3-hoverable w3-border">
+                                    <li>Jill</li>
+                                    <li>Eve</li>
+                                    <li>Adam</li>
+                                </ul>
+                            </div> 
+                        </div>
+                    </div>
+                    <footer class="w3-container"></footer>
+                </div>
+            </div>
         </div>
     </body>
 </html>
