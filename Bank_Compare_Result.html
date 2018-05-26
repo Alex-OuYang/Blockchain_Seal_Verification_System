@@ -49,7 +49,7 @@ and open the template in the editor.
                 document.getElementById("idshow").textContent = sessionObj.id;
                 document.getElementById("accshow").textContent = sessionObj.account;
                 bankaccount = sessionObj.account;
-                GetUserList();
+                GetUserArray();
             } else {
                 location.href = "index.html";
             }
@@ -103,24 +103,42 @@ and open the template in the editor.
             abiDecoder.removeABI(abi);//清除abi cache
             return decodedDataArray;
         }
-        function GetUserList() {
-            var getCompareResult = GetTranscation(save_compare_result_contractABI);
-            for (var i = 0; i < getCompareResult.length; i++) {
-                if (typeof (getCompareResult[i]) != "undefined" && getCompareResult[i].params[5].value == bankaccount) {
-                    console.log(getCompareResult[i]);
-                    //var thisUserInfo = getCompareResult[i].params[1].value;
-                    GetUserCompareData();
-                }
-            }
-        }
-        function GetUserCompareData() {
+        function GetUserArray() {
+            var userarray = [];
             var getUserList = GetTranscation(save_User_Info_contractABI);
             for (var i = 0; i < getUserList.length; i++) {
-                if (typeof (getUserList[i]) != "undefined") {
+                if (typeof (getUserList[i]) != "undefined" && getUserList[i].params[0].value === bankaccount) {
                     console.log(getUserList[i]);
+                    var userdataobject = {
+                        usertraninfo: getUserList[i].transcationhash,
+                        userid: getUserList[i].params[2].value,
+                        name: getUserList[i].params[1].value
+                    }
+                    userarray.push(userdataobject);
                 }
             }
+            //console.log(userarray);
+            GetCompareResultList(userarray);
         }
+        function GetCompareResultList(userarray) {
+            console.log(userarray);
+            var compareResultArray = [];
+            var getCompareResult = GetTranscation(save_compare_result_contractABI);
+            for (var i = 0; i < getCompareResult.length; i++) {
+                if (typeof (getCompareResult[i]) != "undefined" && getCompareResult[i].params[5].value === bankaccount) {
+                    var compareResultObject = {
+                        usertraninfo: getCompareResult[i].params[1].value,
+                        uploadtraninfo: getCompareResult[i].params[0].value,
+                        compareresult: getCompareResult[i].params[2].value,
+                        cpsimilarity: getCompareResult[i].params[3].value,
+                        compareDatetime: getCompareResult[i].params[4].value
+                    };
+                    compareResultArray.push(compareResultObject);
+                }
+            }
+            console.log(compareResultArray);
+        }
+
     </script>
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
