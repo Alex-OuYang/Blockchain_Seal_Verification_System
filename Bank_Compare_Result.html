@@ -173,11 +173,10 @@ and open the template in the editor.
                     }
                 }
             }
-
+            console.log(userarray);
             //顯示資料
             var cardappend = document.getElementById("show_compare_result");
             for (var l = 0; l < userarray.length; l++) {
-                console.log(userarray[l]);
                 var outdiv = document.createElement("div");
                 outdiv.className = "w3-container w3-margin";
                 var accordionbtn = document.createElement("button");
@@ -206,10 +205,10 @@ and open the template in the editor.
                     compareresultli.textContent = "比對結果：" + userarray[l].compareResult[a].compareresult;
                     ul.appendChild(compareresultli);
                     var cpsimilarityli = document.createElement("li");
-                    cpsimilarityli.textContent = "相似程度：" + userarray[l].compareResult[a].cpsimilarity;
+                    cpsimilarityli.textContent = "相似程度：" + userarray[l].compareResult[a].cpsimilarity + " %";
                     ul.appendChild(cpsimilarityli);
                     var uploadtraninfoli = document.createElement("li");
-                    uploadtraninfoli.textContent = "比對資料位置：" + userarray[l].compareResult[a].uploadtraninfo;
+                    uploadtraninfoli.textContent = "證券商端資料位置：" + userarray[l].compareResult[a].uploadtraninfo;
                     ul.appendChild(uploadtraninfoli);
                     panneldiv.appendChild(ul);
                     hidediv.appendChild(panneldiv);
@@ -221,6 +220,7 @@ and open the template in the editor.
             var footer = document.createElement("footer");
             footer.className = "w3-container";
             cardappend.appendChild(footer);
+
         }
     </script>
     <style>
