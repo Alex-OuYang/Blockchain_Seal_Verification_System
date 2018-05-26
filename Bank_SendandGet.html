@@ -132,7 +132,8 @@ and open the template in the editor.
                 }
             }
             for (var i = 0; i < gettrandeCodeData2.length; i++) {
-                if (typeof gettrandeCodeData2[i] !== "undefined") {
+                if (typeof gettrandeCodeData2[i] !== "undefined" && gettrandeCodeData2[i].params[1].value === useraccount) {
+                    //console.log(gettrandeCodeData2[i]);
                     var thisaddr = gettrandeCodeData2[i].params[0].value;
                     if (thisaddr === e.value) {
                         var option = document.createElement("option");
