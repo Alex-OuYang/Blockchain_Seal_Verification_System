@@ -28,6 +28,10 @@ and open the template in the editor.
         }
         //連接區塊鏈
 
+        //upload_file_contractABI
+        var upload_file_contractABI = [{"constant": false, "inputs": [{"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "opname", "type": "string"}, {"name": "opformat", "type": "string"}, {"name": "ophash", "type": "string"}, {"name": "sealname", "type": "string"}, {"name": "sealformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "datetime", "type": "string"}, {"name": "acc", "type": "address"}, {"name": "bankacc", "type": "address"}], "name": "saveUploadFile", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
+        //upload_file_contractABI
+
         //合約區
         //save_User_Info_contractABI
         var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "bankaddr", "type": "address"}, {"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
@@ -107,12 +111,12 @@ and open the template in the editor.
             var userarray = [];
             var getUserList = GetTranscation(save_User_Info_contractABI);
             for (var i = 0; i < getUserList.length; i++) {
-                if (typeof (getUserList[i]) != "undefined" && getUserList[i].params[0].value === bankaccount) {
-                    console.log(getUserList[i]);
+                if (typeof (getUserList[i]) !== "undefined" && getUserList[i].params[0].value === bankaccount) {
                     var userdataobject = {
                         usertraninfo: getUserList[i].transcationhash,
                         userid: getUserList[i].params[2].value,
-                        name: getUserList[i].params[1].value
+                        name: getUserList[i].params[1].value,
+                        compareResult: new Array()
                     }
                     userarray.push(userdataobject);
                 }
@@ -121,11 +125,26 @@ and open the template in the editor.
             GetCompareResultList(userarray);
         }
         function GetCompareResultList(userarray) {
-            console.log(userarray);
+            //找出比對結果
             var compareResultArray = [];
+            var securitiesNameArray = [];
             var getCompareResult = GetTranscation(save_compare_result_contractABI);
+            var getuploaddata = GetTranscation(upload_file_contractABI);
+
+            //取得證券商名稱
+            for (var s = 0; s < getuploaddata.length; s++) {
+                if (typeof (getuploaddata[s]) !== "undefined" && getuploaddata[s].params[10].value === bankaccount) {
+                    var uploadobject = {
+                        acc: getuploaddata[s].params[9].value,
+                        uploadtranaddress: getuploaddata[s].transcationhash
+                    };
+                    securitiesNameArray.push(uploadobject);
+                }
+            }
+
+            //取得比對結果
             for (var i = 0; i < getCompareResult.length; i++) {
-                if (typeof (getCompareResult[i]) != "undefined" && getCompareResult[i].params[5].value === bankaccount) {
+                if (typeof (getCompareResult[i]) !== "undefined" && getCompareResult[i].params[5].value === bankaccount) {
                     var compareResultObject = {
                         usertraninfo: getCompareResult[i].params[1].value,
                         uploadtraninfo: getCompareResult[i].params[0].value,
@@ -136,9 +155,73 @@ and open the template in the editor.
                     compareResultArray.push(compareResultObject);
                 }
             }
-            console.log(compareResultArray);
-        }
 
+            //加入證券商名稱於compareResultArray
+            for (var c = 0; c < compareResultArray.length; c++) {
+                for (var d = 0; d < securitiesNameArray.length; d++) {
+                    if (compareResultArray[c].uploadtraninfo === securitiesNameArray[d].uploadtranaddress) {
+                        compareResultArray[c].securitiesName = securitiesNameArray[d].acc;
+                    }
+                }
+            }
+
+            //合併 userarray && compareResultArray
+            for (var j = 0; j < compareResultArray.length; j++) {
+                for (var k = 0; k < userarray.length; k++) {
+                    if (userarray[k].usertraninfo === compareResultArray[j].usertraninfo) {
+                        userarray[k].compareResult.push(compareResultArray[j]);
+                    }
+                }
+            }
+
+            //顯示資料
+            var cardappend = document.getElementById("show_compare_result");
+            for (var l = 0; l < userarray.length; l++) {
+                console.log(userarray[l]);
+                var outdiv = document.createElement("div");
+                outdiv.className = "w3-container w3-margin";
+                var accordionbtn = document.createElement("button");
+                accordionbtn.className = "w3-button w3-block w3-green w3-left-align";
+                accordionbtn.textContent = "客戶姓名：" + userarray[l].name;
+                accordionbtn.onclick = (function (btnuserid) {
+                    return function () {
+                        AccordionFunc(btnuserid);
+                    }
+                })(userarray[l].userid);
+                var hidediv = document.createElement("div");
+                hidediv.id = userarray[l].userid;
+                hidediv.className = "w3-hide";
+                for (var a = 0; a < userarray[l].compareResult.length; a++) {
+                    var panneldiv = document.createElement("div");
+                    panneldiv.className = "w3-panel";
+                    var ul = document.createElement("ul");
+                    ul.className = "w3-ul w3-hoverable w3-border";
+                    var securitiesNameli = document.createElement("li");
+                    securitiesNameli.textContent = "證券商 Account 位置：" + userarray[l].compareResult[a].securitiesName;
+                    ul.appendChild(securitiesNameli);
+                    var compareDatetimeli = document.createElement("li");
+                    compareDatetimeli.textContent = "比對時間：" + userarray[l].compareResult[a].compareDatetime;
+                    ul.appendChild(compareDatetimeli);
+                    var compareresultli = document.createElement("li");
+                    compareresultli.textContent = "比對結果：" + userarray[l].compareResult[a].compareresult;
+                    ul.appendChild(compareresultli);
+                    var cpsimilarityli = document.createElement("li");
+                    cpsimilarityli.textContent = "相似程度：" + userarray[l].compareResult[a].cpsimilarity;
+                    ul.appendChild(cpsimilarityli);
+                    var uploadtraninfoli = document.createElement("li");
+                    uploadtraninfoli.textContent = "比對資料位置：" + userarray[l].compareResult[a].uploadtraninfo;
+                    ul.appendChild(uploadtraninfoli);
+                    panneldiv.appendChild(ul);
+                    hidediv.appendChild(panneldiv);
+                }
+                outdiv.appendChild(accordionbtn);
+                outdiv.appendChild(hidediv);
+                cardappend.appendChild(outdiv);
+            }
+            var footer = document.createElement("footer");
+            footer.className = "w3-container";
+            cardappend.appendChild(footer);
+        }
     </script>
     <style>
         html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
@@ -179,50 +262,11 @@ and open the template in the editor.
         <!-- !PAGE CONTENT! -->
         <div class="w3-main" style="margin-left:425px;margin-top:60px;">
             <div class="w3-container">
-                <div class="w3-card-4 w3-margin">
+                <div class="w3-card-4 w3-margin" id="show_compare_result">
                     <header class="w3-container w3-blue">
                         <h5><b><i class="fa fa-eye"></i>&nbsp;Compare&nbsp;Result&nbsp;View</b></h5>
                     </header>
-                    <div class="w3-container w3-margin">
-                        <button onclick="AccordionFunc('Demo1')" class="w3-button w3-block w3-green w3-left-align">Accordion 1</button>
-                        <div id="Demo1" class="w3-hide">
-                            <div class="w3-panel">
-                                <ul class="w3-ul w3-hoverable w3-border">
-                                    <li>Jill</li>
-                                    <li>Eve</li>
-                                    <li>Adam</li>
-                                </ul>
-                            </div> 
-                            <div class="w3-panel">
-                                <ul class="w3-ul w3-hoverable w3-border">
-                                    <li>Jill</li>
-                                    <li>Eve</li>
-                                    <li>Adam</li>
-                                </ul>
-                            </div> 
-                        </div>
-                    </div>
-                    <div class="w3-container w3-margin">
-                        <button onclick="AccordionFunc('Demo2')" class="w3-button w3-block w3-green w3-left-align">
-                            Accordion 1</button>
-                        <div id="Demo2" class="w3-hide">
-                            <div class="w3-panel">
-                                <ul class="w3-ul w3-hoverable w3-border">
-                                    <li>Jill</li>
-                                    <li>Eve</li>
-                                    <li>Adam</li>
-                                </ul>
-                            </div> 
-                            <div class="w3-panel">
-                                <ul class="w3-ul w3-hoverable w3-border">
-                                    <li>Jill</li>
-                                    <li>Eve</li>
-                                    <li>Adam</li>
-                                </ul>
-                            </div> 
-                        </div>
-                    </div>
-                    <footer class="w3-container"></footer>
+                    <!--<footer class="w3-container"></footer>-->
                 </div>
             </div>
         </div>
