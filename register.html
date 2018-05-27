@@ -12,20 +12,8 @@ and open the template in the editor.
         <link href="css/w3.css" rel="stylesheet" type="text/css"/>
         <script src="js/web3.js" type="text/javascript"></script>
         <script src="js/ethereumjs-accounts.js" type="text/javascript"></script>
+        <script src="js/connect_blockchain.js" type="text/javascript"></script>
         <script>
-            //連接區塊鏈
-            //var connectIP = "140.124.93.79";
-            var connectIP = "localhost";
-            var Web3 = require('web3');
-            var web3 = new Web3();
-            web3.setProvider(new web3.providers.HttpProvider("http://" + connectIP + ":8545"));
-            var isConnected = web3.isConnected();
-            //console.log(isConnected);
-            if (!isConnected) {
-                alert("請先連接區塊鏈！！");
-            }
-            //連接區塊鏈
-
             //合約區
             var contractABI = [{"constant": false, "inputs": [{"name": "id", "type": "string"}, {"name": "reacc", "type": "address"}, {"name": "prikey", "type": "string"}, {"name": "pubkey", "type": "string"}, {"name": "pwd", "type": "string"}, {"name": "redt", "type": "string"}], "name": "registerAccount", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
             var contractByteCode = '0x6060604052341561000f57600080fd5b61035b8061001e6000396000f300606060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063aa69472914610046575b600080fd5b341561005157600080fd5b6101cc600480803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f0160208091040260200160405190810160405280939291908181526020018383808284378201915050505050509190803590602001908201803590602001908080601f016020809104026020016040519081016040528093929190818152602001838380828437820191505050505050919050506101ce565b005b85600090805190602001906101e492919061028a565b5084600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550836002908051906020019061023c92919061028a565b50826003908051906020019061025392919061028a565b50816004908051906020019061026a92919061028a565b50806005908051906020019061028192919061028a565b50505050505050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106102cb57805160ff19168380011785556102f9565b828001600101855582156102f9579182015b828111156102f85782518255916020019190600101906102dd565b5b509050610306919061030a565b5090565b61032c91905b80821115610328576000816000905550600101610310565b5090565b905600a165627a7a72305820a3042ffcc28bf1ee6903c37eed880cedfa96fb38a1cdcbdeb1bda09a047f03a70029';
@@ -44,8 +32,8 @@ and open the template in the editor.
                     var genaccstring = identify.toString() + pwd.toString();
                     //console.log(genaccstring);
                     var accounts = new Accounts(); // or new Accounts(..) if using dist.
-                    var accountObject = accounts.new(genaccstring);//Generate a new account encrypted with a passphrase
-                    var isAddress = web3.isAddress(accountObject.address);//check account
+                    var accountObject = accounts.new(genaccstring); //Generate a new account encrypted with a passphrase
+                    var isAddress = web3.isAddress(accountObject.address); //check account
                     if (isAddress == true) {
                         document.getElementById("showAcc").textContent = accountObject.address;
                         document.getElementById("privateKey").textContent = accountObject.private;

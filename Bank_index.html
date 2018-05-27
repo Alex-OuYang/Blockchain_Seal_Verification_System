@@ -14,20 +14,8 @@ and open the template in the editor.
     <script src="js/sessionjs.js" type="text/javascript"></script>
     <script src="js/web3.js" type="text/javascript"></script>
     <script src="js/abi-decoder.js" type="text/javascript"></script>
+    <script src="js/connect_blockchain.js" type="text/javascript"></script>
     <script>
-        //連接區塊鏈
-        //var connectIP = "140.124.93.79";
-        var connectIP = "localhost";
-        var Web3 = require('web3');
-        var web3 = new Web3();
-        web3.setProvider(new web3.providers.HttpProvider("http://" + connectIP + ":8545"));
-        var isConnected = web3.isConnected();
-        //console.log(isConnected);
-        if (!isConnected) {
-            alert("請先連接區塊鏈！！");
-        }
-        //連接區塊鏈
-
         //合約區
         //save_User_Info_contractABI
         var save_User_Info_contractABI = [{"constant": false, "inputs": [{"name": "bankaddr", "type": "address"}, {"name": "usname", "type": "string"}, {"name": "usid", "type": "string"}, {"name": "usbirday", "type": "string"}, {"name": "usphone", "type": "string"}, {"name": "usaddress", "type": "string"}, {"name": "sealfname", "type": "string"}, {"name": "sealfformat", "type": "string"}, {"name": "sealhash", "type": "string"}, {"name": "savedt", "type": "string"}], "name": "saveUserInfo", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function"}];
