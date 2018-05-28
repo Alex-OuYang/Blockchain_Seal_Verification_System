@@ -38,6 +38,7 @@ and open the template in the editor.
         var mySidebar;
         var overlayBg;
         var bankaddress;
+        var histarray = [];
         window.onload = function () {
             mySidebar = document.getElementById("mySidebar");
             overlayBg = document.getElementById("myOverlay");
@@ -136,33 +137,37 @@ and open the template in the editor.
             }
         }
         function ConvertImgToCanvas(img) {
-            var canvas;
-            var ctx;
-            if (img.id === "securitiesimg") {
-                canvas = document.getElementById("securitiesSeal");
-                ctx = canvas.getContext("2d");
-            } else if (img.id === "bankimg") {
-                canvas = document.getElementById("bankSeal");
-                ctx = canvas.getContext("2d");
+            var fileurl = img.src;
+            var bloburl = "";
+            if (img.src !== "") {
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob';
+                xhr.onload = function () {
+                    bloburl = window.URL.createObjectURL(xhr.response);
+                    img.src = bloburl;
+                };
+                xhr.open('GET', fileurl);
+                xhr.send();
             }
-            var image = new Image();
-            image.src = img.src;
-            image.onload = function () {
-                ctx.drawImage(image, 120, 50);
-            };
+            img.onload = function () {
+                var tempcanvasid = "";
+                if (img.id === "securitiesimg") {
+                    tempcanvasid = "securitiesSeal";
+                } else if (img.id === "bankimg") {
+                    tempcanvasid = "bankSeal";
+                }
+                let mat = cv.imread(img);
+                cv.imshow(tempcanvasid, mat);
+                mat.delete();
+            }
         }
         function DployContract() {
             var datatime = GetDatetime();
             var uploadFileHash = document.getElementById("upload_file_hash").value;
             var bankUserInfo = document.getElementById("bank_user_info").value;
-            var compareResult = "符合";
-            var compareSimilarity = "99.99";
+            var compareResult = document.getElementById("compare_result").value;
+            var compareSimilarity = document.getElementById("compare_similarity").value;
             var saveaddress = bankaddress;
-
-            /*
-             var compareResult = document.getElementById("compare_result").value;
-             var compareSimilarity = document.getElementById("compare_similarity").value;
-             */
             console.log(compareResult);
             if (compareResult.length != 0 && compareSimilarity.length != 0) {
                 var savecomparesealresultContract = web3.eth.contract(save_compare_result_contractABI);
@@ -199,7 +204,82 @@ and open the template in the editor.
             }
         }
         function CompareSeal() {
-
+            var securitiesCanvas = document.getElementById("securitiesSeal");
+            var bankCanvas = document.getElementById("bankSeal");
+            let securitiesSeal = cv.imread(securitiesCanvas);
+            let bankSeal = cv.imread(bankCanvas);
+            createHist(securitiesSeal, "securitiesSeal");
+            createHist(bankSeal, "bankSeal");
+        }
+        function createHist(imgin, imgstring) {
+            var histobject = {};
+            var histcanvasid;
+            if (imgstring == "securitiesSeal") {
+                histcanvasid = "securitiesSeal";
+            } else if (imgstring == "bankSeal") {
+                histcanvasid = "bankSeal";
+            }
+            cv.cvtColor(imgin, imgin, cv.COLOR_RGBA2GRAY, 0);
+            let srcVec = new cv.MatVector();
+            srcVec.push_back(imgin);
+            let accumulate = false;
+            let channels = [0];
+            let histSize = [256];
+            let ranges = [0, 255];
+            let hist = new cv.Mat();
+            let mask = new cv.Mat();
+            let color = new cv.Scalar(255, 255, 255);
+            let scale = 2;
+            // You can try more different parameters
+            cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
+            cv.normalize(hist, hist, 0, 1, cv.NORM_MINMAX);//將直方圖範圍正規化 由 0-1 之間
+            let result = cv.minMaxLoc(hist, mask);
+            let max = result.maxVal;
+            let dst = new cv.Mat.zeros(imgin.rows, histSize[0] * scale, cv.CV_8UC3);
+            for (let i = 0; i < histSize[0]; i++) {
+                let binVal = hist.data32F[i] * imgin.rows / max;
+                let pioint1 = new cv.Point(i * scale, imgin.rows - 1);
+                let pioint2 = new cv.Point((i + 1) * scale - 1, imgin.rows - binVal);
+                cv.rectangle(dst, pioint1, pioint2, color, cv.FILLED);
+            }
+            histobject = {
+                hist: hist,
+                name: histcanvasid
+            };
+            histarray.push(histobject);
+            if (histcanvasid == "bankSeal") {
+                console.log(histarray);
+                var hist1 = histarray[0].hist;
+                var hist2 = histarray[1].hist;
+                var method_0 = cv.compareHist(hist1, hist2, 0);//相關係數 CV_COMP_CORREL max=1 越大相似度越高  
+                var method_1 = cv.compareHist(hist1, hist2, 1);//卡方係數 CV_COMP_CHISQR max=無限制 min=0 越小相似度越高 
+                var method_2 = cv.compareHist(hist1, hist2, 2);//相交係數 CV_COMP_INTERSECT max=9.542171321008937 min=0 越大相似度越高
+                var method_3 = cv.compareHist(hist1, hist2, 3);//Bhattacharyya distance min=0 越小相似度越高
+                var method_4 = cv.compareHist(hist1, hist2, 4);
+                var method_5 = cv.compareHist(hist1, hist2, 5);
+                console.log("Correlation：" + method_0);
+                console.log("method_1 " + method_1);
+                console.log("method_2 " + method_2);
+                console.log("method_3 " + method_3);
+                console.log("method_4 " + method_4);
+                console.log("method_5 " + method_5);
+                imgin.delete();
+                dst.delete();
+                srcVec.delete();
+                mask.delete();
+                hist.delete();
+                histarray.length = 0;//清空array
+                CheckSimilarity(method_0);
+            }
+        }
+        function CheckSimilarity(result) {
+            if (result >= 0.95) {
+                document.getElementById("compare_result").value = "符合";
+                document.getElementById("compare_similarity").value = result;
+            } else {
+                document.getElementById("compare_result").value = "不符合";
+                document.getElementById("compare_similarity").value = result;
+            }
         }
     </script>
     <style>
