@@ -275,10 +275,10 @@ and open the template in the editor.
         function CheckSimilarity(result) {
             if (result >= 0.95) {
                 document.getElementById("compare_result").value = "符合";
-                document.getElementById("compare_similarity").value = result;
+                document.getElementById("compare_similarity").value = result * 100 + " %";
             } else {
                 document.getElementById("compare_result").value = "不符合";
-                document.getElementById("compare_similarity").value = result;
+                document.getElementById("compare_similarity").value = result * 100 + " %";
             }
         }
     </script>
