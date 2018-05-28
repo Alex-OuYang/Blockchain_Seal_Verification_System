@@ -111,8 +111,10 @@ and open the template in the editor.
             for (var i = 0; i < getTransactiondeCodeData.length; i++) {
                 if ((typeof getTransactiondeCodeData[i] !== "undefined") && getTransactiondeCodeData[i].transcationhash === uploadfilehash) {
                     var securitiesSeal = "https://ipfs.io/ipfs/" + getTransactiondeCodeData[i].params[7].value;
-                    var img = document.getElementById("securitiesSeal");
-                    img.src = securitiesSeal;
+                    var securitiesimg = document.createElement("img");
+                    securitiesimg.src = securitiesSeal;
+                    securitiesimg.id = "securitiesimg";
+                    ConvertImgToCanvas(securitiesimg);
                     var userID = getTransactiondeCodeData[i].params[1].value;
                     GetUserInfo(userID);
                 }
@@ -126,10 +128,28 @@ and open the template in the editor.
                     document.getElementById("username").value = getUserdeCodeData[i].params[1].value;
                     document.getElementById("userid").value = getUserdeCodeData[i].params[2].value;
                     var bankSeal = "https://ipfs.io/ipfs/" + getUserdeCodeData[i].params[8].value;
-                    var img = document.getElementById("bankSeal");
-                    img.src = bankSeal;
+                    var bankimg = document.createElement("img");
+                    bankimg.src = bankSeal;
+                    bankimg.id = "bankimg";
+                    ConvertImgToCanvas(bankimg);
                 }
             }
+        }
+        function ConvertImgToCanvas(img) {
+            var canvas;
+            var ctx;
+            if (img.id === "securitiesimg") {
+                canvas = document.getElementById("securitiesSeal");
+                ctx = canvas.getContext("2d");
+            } else if (img.id === "bankimg") {
+                canvas = document.getElementById("bankSeal");
+                ctx = canvas.getContext("2d");
+            }
+            var image = new Image();
+            image.src = img.src;
+            image.onload = function () {
+                ctx.drawImage(image, 120, 50);
+            };
         }
         function DployContract() {
             var datatime = GetDatetime();
@@ -177,6 +197,9 @@ and open the template in the editor.
                 alert("傳送成功！！");
                 location.href = "Bank_Compare_Result.html";
             }
+        }
+        function CompareSeal() {
+
         }
     </script>
     <style>
@@ -259,18 +282,18 @@ and open the template in the editor.
                         <div class="w3-card-4 ">
                             <div class="w3-container w3-center w3-col l6 m6 s6">
                                 <div class="w3-center w3-margin"><b>銀行原留印鑑</b></div>
-                                <img id="bankSeal" style="width:100px;height: 100px;">
+                                <canvas id="bankSeal"></canvas>
                             </div>
                             <div class="w3-container w3-center w3-col l6 m6 s6">
                                 <div class="w3-center w3-margin"><b>證券商端印鑑</b></div>
-                                <img id="securitiesSeal" style="width:100px;height: 100px;">
+                                <canvas id="securitiesSeal"></canvas>
                             </div>
                         </div>
                     </div>
                     <input type="hidden" id="upload_file_hash"/>
                     <input type="hidden" id="bank_user_info"/>
                     <div class="w3-container w3-margin">
-                        <button class="w3-btn w3-blue w3-block" onclick="">比對印鑑</button>
+                        <button class="w3-btn w3-blue w3-block" onclick="CompareSeal()">比對印鑑</button>
                     </div>
                     <div class="w3-container w3-margin">
                         <button class="w3-btn w3-green w3-block" onclick="DployContract()">儲存比對結果</button>
