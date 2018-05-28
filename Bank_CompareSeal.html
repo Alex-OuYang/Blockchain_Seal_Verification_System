@@ -16,6 +16,7 @@ and open the template in the editor.
     <script src="js/abi-decoder.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script src="js/connect_blockchain.js" type="text/javascript"></script>
+    <script async src="https://docs.opencv.org/3.3.1/opencv.js" type="text/javascript" onload="onOpenCvReady()"></script>
     <script>
         //合約區
         //upload_file_contractABI
@@ -72,6 +73,10 @@ and open the template in the editor.
         function Logout() {
             Session.clear();
             location.href = "index.html";
+        }
+        function onOpenCvReady() {
+            document.getElementById("opencvjs_status").innerHTML = "<label><strong>ready！！！</strong></label>";
+            console.log("opencv is onload");
         }
         function GetTranscation(abi) {
             var decodedDataArray = [];
