@@ -144,7 +144,7 @@ and open the template in the editor.
                 alert("資料請勿空白！");
             }
         }
-        function  SaveUserData(bankacc, username, userid, userbirthday, userphone, useraddress, sealfilename, sealfileformat, sealipfshash, savedatetime) {
+        function SaveUserData(bankacc, username, userid, userbirthday, userphone, useraddress, sealfilename, sealfileformat, sealipfshash, savedatetime) {
             if (save_User_Info_contractABI !== "") {
                 web3.eth.defaultAccount = web3.eth.accounts[0];
                 var myContract = web3.eth.contract(save_User_Info_contractABI);
