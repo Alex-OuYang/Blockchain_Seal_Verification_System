@@ -157,7 +157,13 @@ and open the template in the editor.
                     tempcanvasid = "bankSeal";
                 }
                 let mat = cv.imread(img);
-                cv.imshow(tempcanvasid, mat);
+                let dst = new cv.Mat();
+                var height = mat.size().height;//src.rows
+                var width = mat.size().width;//src.cols
+                var rewidth = 300;
+                var reheight = (height * rewidth) / width;
+                cv.resize(mat, dst, new cv.Size(rewidth, reheight), 0, 0, cv.INTER_LINEAR);
+                cv.imshow(tempcanvasid, dst);//結果的canvas id
                 mat.delete();
             }
         }
@@ -230,12 +236,15 @@ and open the template in the editor.
             let mask = new cv.Mat();
             let color = new cv.Scalar(255, 255, 255);
             let scale = 2;
-            // You can try more different parameters
+
+            //計算直方圖
             cv.calcHist(srcVec, channels, mask, hist, histSize, ranges, accumulate);
             cv.normalize(hist, hist, 0, 1, cv.NORM_MINMAX);//將直方圖範圍正規化 由 0-1 之間
             let result = cv.minMaxLoc(hist, mask);
             let max = result.maxVal;
             let dst = new cv.Mat.zeros(imgin.rows, histSize[0] * scale, cv.CV_8UC3);
+
+            //畫直方圖
             for (let i = 0; i < histSize[0]; i++) {
                 let binVal = hist.data32F[i] * imgin.rows / max;
                 let pioint1 = new cv.Point(i * scale, imgin.rows - 1);
@@ -248,7 +257,6 @@ and open the template in the editor.
             };
             histarray.push(histobject);
             if (histcanvasid == "bankSeal") {
-                console.log(histarray);
                 var hist1 = histarray[0].hist;
                 var hist2 = histarray[1].hist;
                 var method_0 = cv.compareHist(hist1, hist2, 0);//相關係數 CV_COMP_CORREL max=1 越大相似度越高  
